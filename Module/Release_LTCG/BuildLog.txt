@@ -1,0 +1,5 @@
+﻿     Creating library F:\GitHub\LEClient\Module\Release_LTCG\LEClient.lib and object F:\GitHub\LEClient\Module\Release_LTCG\LEClient.exp
+  Generating code
+f:\github\leclient\module\utilities.cpp(64): warning C4715: 'Utilities::GetModuleNameFromAddress' : not all control paths return a value
+  Finished generating code
+xbecopy : error X1001: Could not connect to Xbox 360 'jtag'
