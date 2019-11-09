@@ -110,7 +110,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 		if (FAILED(FunctionObfuscation(Invoker::RegisterPostCryptoNatives, Utilities::GetFunctionSize(reinterpret_cast<PDWORD>(Invoker::RegisterPostCryptoNatives))).DeleteNextCall().Call<DWORD>()))
 			return FALSE;
 
-		//Security::ProtectMyMemorySpace();
+		Security::ProtectMyMemorySpace();
 		if (XamLoaderGetDvdTrayState() == DVD_TRAY_STATE_CLOSED || XamLoaderGetDvdTrayState() == DVD_TRAY_STATE_EMPTY) {
 			if (FAILED(LE::Init())) 
 				HalReturnToFirmware(HalResetSMCRoutine);

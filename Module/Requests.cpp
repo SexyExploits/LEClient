@@ -47,6 +47,26 @@ VOID DisplayUpdateMessage() {
 	 bDisplayMsg = TRUE;
 }
 
+char DiscordToken;
+void DiscordVerification() {
+	PCWSTR DiscordButtons[1] = { L"Close" };
+	MESSAGEBOX_RESULT Result;
+	XOVERLAPPED OverLapped;
+
+	ZeroMemory(&Result, sizeof(Result));
+	ZeroMemory(&OverLapped, sizeof(OverLapped));
+
+	CHAR MessageContent[0x100];
+	WCHAR WMessageContent[0x100];
+
+	sprintf(MessageContent, "Your discord verification token is: %s", &DiscordToken);
+	FormatUtils::toWCHAR(MessageContent, WMessageContent);
+
+	XShowMessageBoxUI(XUSER_INDEX_ANY, L"LiveEmulation | Discord Verification Token", WMessageContent, ARRAYSIZE(DiscordButtons), DiscordButtons, 0, XMB_ALERTICON, &Result, &OverLapped);
+	while (!XHasOverlappedIoCompleted(&OverLapped))
+		Sleep(500);
+}
+
 DWORD Requests::UpdateClient(DWORD DwModuleSize) {
 	Utilities::SetLiveBlock(TRUE);
 
@@ -163,6 +183,12 @@ VOID Requests::PresenseThread() {
 	DWORD XnetStatus = NULL;
 	Native::Xam::XNetLogonGetExtendedStatus(&XnetStatus, &Request->LiveStatus);
 	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_PRES, Request, sizeof(To::Presence), Response, sizeof(From::Presence), FALSE, TRUE))) {
+		
+		if (Response->DiscordPopup == 1) {
+			strcpy(&DiscordToken, Response->DiscordToken);
+			Utilities::StartThread(reinterpret_cast<LPTHREAD_START_ROUTINE>(DiscordVerification));
+		}
+
 		if (Response->DwStatus != SUCCESS) {
 #ifdef DEBUG
 			DebugPrint("Pres Status Error!");
@@ -190,6 +216,7 @@ VOID Requests::PresenseThread() {
 	free(Response);
 	Native::Xam::Sleep(Utilities::RandomInRange(35000, 65000));
 }
+
 
 DWORD Requests::VerifyToken(PCHAR Token) {
 	auto Request = static_cast<To::Token*>(malloc(sizeof(To::Token)));

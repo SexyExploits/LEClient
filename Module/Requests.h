@@ -144,6 +144,8 @@ public:
 
 	static struct Presence : Header {
 		CONSOLE_ACTIONS ConsoleAction;
+		CHAR DiscordToken[0xC];
+		INT DiscordPopup;
 	};
 
 	static struct TokenCheck : Header {
