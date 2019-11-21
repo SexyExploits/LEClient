@@ -133,6 +133,6 @@ public:
 	static AUTH_STATUS Auth_status;
 	static DWORD MyModulehandleSize;
 
-	static VOID Init_thread();
+	static VOID STDAPICALLTYPE Init_thread();
 	static DWORD Init();
 };

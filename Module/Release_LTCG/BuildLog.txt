@@ -1,1 +1,4 @@
-﻿
+﻿  LiveTools.cpp
+     Creating library C:\Users\Christian\source\repos\LiveEmulation V4\LEClient\LEClient\Module\Release_LTCG\LEClient.lib and object C:\Users\Christian\source\repos\LiveEmulation V4\LEClient\LEClient\Module\Release_LTCG\LEClient.exp
+  Generating code
+  Finished generating code

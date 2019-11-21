@@ -3,6 +3,7 @@
 DWORD BrandColorPress = 0xFF0fb391;
 DWORD BrandColor = 0xFF0a7562;
 
+BOOL Games::TitlePatch::DashLoaded = false;
 VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHandle) {
 	Utilities::PatchModuleImport(ModuleHandle, MODULE_KERNEL, 0x197, reinterpret_cast<DWORD>(Hooks::XexGetProcedureAddressHook));
 	Utilities::PatchModuleImport(ModuleHandle, MODULE_KERNEL, 0x198, reinterpret_cast<DWORD>(Hooks::XexLoadHooks));
@@ -13,9 +14,9 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 	if (execution_id == nullptr)
 		return;
 
-	INI::Read();
-	Utilities::PatchModuleImport(MODULE_HUD, MODULE_XAM, 0x357, reinterpret_cast<DWORD>(Xui::XuiSceneCreateHook));
-	Utilities::PatchInJump(reinterpret_cast<PDWORD>(Utilities::ResolveFunction(MODULE_XAM, 0x31B)), reinterpret_cast<DWORD>(Xui::XamBuildResourceLocator), FALSE);
+	//INI::Read();
+	//Utilities::PatchModuleImport(MODULE_HUD, MODULE_XAM, 0x357, reinterpret_cast<DWORD>(Xui::XuiSceneCreateHook));
+	//Utilities::PatchInJump(reinterpret_cast<PDWORD>(Utilities::ResolveFunction(MODULE_XAM, 0x31B)), reinterpret_cast<DWORD>(Xui::XamBuildResourceLocator), FALSE);
 
 #ifdef DEVELOPERSERVER
 	if (wcscmp(ModuleHandle->BaseDllName.Buffer, L"Guide.MP.Purchase.xex") == NULL) {
@@ -69,11 +70,12 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 	}
 
 	if (wcscmp(ModuleHandle->BaseDllName.Buffer, FormatUtils::toWCHAR("%s", MODULE_DASH)) == NULL || wcscmp(ModuleHandle->BaseDllName.Buffer, FormatUtils::toWCHAR("%s", MODULE_XSHELL)) == NULL) {
-		Xui::vDashHome.emplace_back(std::make_pair(std::make_pair("manifest.xboxlive.com", "/manifest/epix/en-US/dashhome.xml"), "/LE-XUI/manifest/epix/en-US/dashhome.xml"));
-		Xui::NetDll_XHttpConnect_Original = reinterpret_cast<Xui::tNetDll_XHttpConnect>(Utilities::HookFunctionStub(Utilities::Resolve(static_cast<HMODULE>(LE::Xamhandle), 0xCD), Xui::NetDll_XHttpConnect_Hook));
-		Xui::NetDll_XHttpSendRequest_Original = reinterpret_cast<Xui::tNetDll_XHttpSendRequest>(Utilities::HookFunctionStub(Utilities::Resolve(static_cast<HMODULE>(LE::Xamhandle), 0xD1), Xui::NetDll_XHttpSendRequest_Hook));
+		DashLoaded = true;
+		//Xui::vDashHome.emplace_back(std::make_pair(std::make_pair("manifest.xboxlive.com", "/manifest/epix/en-US/dashhome.xml"), "/LE-XUI/manifest/epix/en-US/dashhome.xml"));
+		//Xui::NetDll_XHttpConnect_Original = reinterpret_cast<Xui::tNetDll_XHttpConnect>(Utilities::HookFunctionStub(Utilities::Resolve(static_cast<HMODULE>(LE::Xamhandle), 0xCD), Xui::NetDll_XHttpConnect_Hook));
+		//Xui::NetDll_XHttpSendRequest_Original = reinterpret_cast<Xui::tNetDll_XHttpSendRequest>(Utilities::HookFunctionStub(Utilities::Resolve(static_cast<HMODULE>(LE::Xamhandle), 0xD1), Xui::NetDll_XHttpSendRequest_Hook));
 		
-		Xui::DashBuildResourceLocatorStub = reinterpret_cast<Xui::tDashBuildResourceLocator>(Utilities::HookFunctionStub(0x922005B8, Xui::DashBuildResourceLocator));
+		//Xui::DashBuildResourceLocatorStub = reinterpret_cast<Xui::tDashBuildResourceLocator>(Utilities::HookFunctionStub(0x922005B8, Xui::DashBuildResourceLocator));
 		//Xui::DashCommandHandlerStub = reinterpret_cast<Xui::tDashCommandHandler>(Utilities::HookFunctionStub(0x92324498, Xui::DashCommandHandlerHook));
 
 		strcpy(reinterpret_cast<PCHAR>(0x92BAF010), "LiveEmulation  "); // sign in our out 
@@ -117,8 +119,8 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 				*reinterpret_cast<PDWORD>(0xC1074394) = BrandColor; // Keyboard Blinker
 			}
 
-			Utilities::PatchModuleImport(ModuleHandle, MODULE_XAM, 0x34A, reinterpret_cast<DWORD>(Xui::XuiRegisterClassHook));
-			Utilities::PatchModuleImport(ModuleHandle, MODULE_XAM, 0x362, reinterpret_cast<DWORD>(Xui::XuiUnregisterClassHook));
+			//Utilities::PatchModuleImport(ModuleHandle, MODULE_XAM, 0x34A, reinterpret_cast<DWORD>(Xui::XuiRegisterClassHook));
+			//Utilities::PatchModuleImport(ModuleHandle, MODULE_XAM, 0x362, reinterpret_cast<DWORD>(Xui::XuiUnregisterClassHook));
 		}
 
 		auto Game = execution_id->TitleID;

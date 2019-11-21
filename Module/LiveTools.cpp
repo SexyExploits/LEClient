@@ -42,7 +42,7 @@ DWORD LiveTools::XKE(PBYTE Buffer, DWORD BufferSize, PBYTE Salt, PVOID KrnlBuild
 		if (Response->DwStatus != SUCCESS) 
 			return E_FAIL;
 
-		if (*reinterpret_cast<PDWORD>(Response->XKEBuffer + 0x28) != 0x4E4E4488)
+		if (*reinterpret_cast<PDWORD>(Response->XKEBuffer + 0x28) != 0x4E4E4497)
 			Native::Kernel::HalReturnToFirmware(HalFatalErrorRebootRoutine);
 
 		CopyMemory(Buffer, Response->XKEBuffer, 0x100);

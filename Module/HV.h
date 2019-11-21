@@ -95,13 +95,13 @@ public:
 	static QWORD HvPeekQWORD(QWORD Address);
 	static QWORD HvGetFuseLine(BYTE FuseIndex);
 
-	static HRESULT SetupHvExpansion();
-	static HRESULT HvPeekBytes(QWORD Address, PVOID Buffer, DWORD Size);
-	static HRESULT HvPokeBYTE(QWORD Address, BYTE Value);
-	static HRESULT HvPokeWORD(QWORD Address, WORD Value);
-	static HRESULT HvPokeDWORD(QWORD Address, DWORD Value);
-	static HRESULT HvPokeQWORD(QWORD Address, QWORD Value);
-	static HRESULT HvPokeBytes(QWORD Address, CONST PVOID Buffer, DWORD Size);
+	static DWORD SetupHvExpansion();
+	static DWORD HvPeekBytes(QWORD Address, PVOID Buffer, DWORD Size);
+	static DWORD HvPokeBYTE(QWORD Address, BYTE Value);
+	static DWORD HvPokeWORD(QWORD Address, WORD Value);
+	static DWORD HvPokeDWORD(QWORD Address, DWORD Value);
+	static DWORD HvPokeQWORD(QWORD Address, QWORD Value);
+	static DWORD HvPokeBytes(QWORD Address, CONST PVOID Buffer, DWORD Size);
 
 	static BYTE FuseLines[];
 };

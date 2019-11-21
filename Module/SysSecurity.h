@@ -56,18 +56,17 @@ public:
 
 		m_tableAddress = 0x9101ABF8;
 
-		for (int i = 0; i < 63; i++) {
+		for (auto i = 0; i < 63; i++) {
 			DWORD ptr = m_tableAddress + (i * 12);
 			XbdmCommandTable entry;
 
-			DWORD strAddress = *(DWORD*)(ptr);
+			DWORD strAddress = *reinterpret_cast<PDWORD>(ptr);
 			entry.m_name = (char*)strAddress;
 			entry.m_type = *(int*)(ptr + 4);
 			entry.m_isHooked = false;
 			entry.m_functionAddress = *(DWORD*)(ptr + 8);
 			entry.m_entryAddress = ptr;
 			entry.m_vectorIndex = m_commandTable.size();
-
 			m_commandTable.push_back(entry);
 
 #ifdef DEBUG

@@ -6,6 +6,7 @@ public:
 
 	class TitlePatch {
 	public:
+		static BOOL DashLoaded;
 		static VOID InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHandle);
 	};
 

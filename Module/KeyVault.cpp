@@ -14,7 +14,7 @@ BYTE KV::HmacKVHash[0x14];
 BYTE DevKitRoamableObfuscationKey[0x10] = { 0xDA, 0xB6, 0x9A, 0xD9, 0x8E, 0x28, 0x76, 0x4F, 0x97, 0x7E, 0xE2, 0x48, 0x7E, 0x4F, 0x3F, 0x68 };
 BYTE RetailRoamableObfuscationKey[0x10] = { 0xE1, 0xBC, 0x15, 0x9C, 0x73, 0xB1, 0xEA, 0xE9, 0xAB, 0x31, 0x70, 0xF3, 0xAD, 0x47, 0xEB, 0xF3 };
 
-#define RetailKvAddress 0x0000000200016240
+#define RetailKvAddress 0x00000002000163C0
 #define DevKitKvAddress 0x00000002000162E0
 
 DWORD KV::SetupKeyvault() {
@@ -30,8 +30,7 @@ DWORD KV::SetupKeyvault() {
 	// cpukey read or generate for digesting
 	if (Utilities::FileExists(CPUKEY_PathTxt)) {
 		if (SUCCEEDED(Utilities::CReadFile(CPUKEY_PathTxt, &KvCpukeyTxt, &KVCpukeyTextLen))) {
-			LPCSTR CPUKeyString;
-			CPUKeyString = reinterpret_cast<LPCSTR>(KvCpukeyTxt);
+			auto CPUKeyString = reinterpret_cast<LPCSTR>(KvCpukeyTxt);
 			FormatUtils::HexStringToByteArray(KvCpukeyTxt, const_cast<PCHAR>(CPUKeyString), 0x10);
 			CopyMemory(KvCpuKey, CPUKeyString, 0x10);
 			Utilities::CWriteFile(CPUKEY_PathBin, KvCpuKey, 0x10);

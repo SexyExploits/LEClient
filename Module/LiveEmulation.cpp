@@ -7,35 +7,18 @@ AUTH_STATUS LE::Auth_status = NOT_REGISTERED;
 DWORD LE::MyModulehandleSize = NULL;
 
 VOID LE::Init_thread() {
-	while (Native::Xam::XamGetCurrentTitleId() != Games::DASHBOARD) 
+	while (Native::Xam::XamGetCurrentTitleId() != Games::DASHBOARD)
 		Native::Xam::Sleep(100);
-	Security::SetupIntegrity();
 }
 
 DWORD LE::Init() {
-	if (XamGetCurrentTitleId() == Games::DASHBOARD) {
-#ifdef DEBUG
-		DebugPrint("[LiveEmulation] Dashboard already loaded when attempting to load plugin!");
-#endif
-		return E_FAIL;
-	}
-
-	if (XboxKrnlVersion->Build != 0x4488 && !KV::IsDevkit) {
-#ifdef DEBUG
-		DebugPrint("[LiveEmulation] Invalid kernel version detected!");
-#endif
-		return E_FAIL;
-	 }
-
 	if (FAILED(Launch::SetupFileSystem())) {
 #ifdef DEBUG
 		DebugPrint("[LiveEmulation] Failed SetupFileSystem!");
 #endif
 		return E_FAIL;
-	} 
+	}
 
-	INI::Init();
-	
 	if (FAILED(Utilities::SetupResources())) {
 #ifdef DEBUG
 		DebugPrint("[LiveEmulation] failed to setup resources!");
@@ -43,47 +26,28 @@ DWORD LE::Init() {
 		return E_FAIL;
 	}
 	
-	if (FAILED(HV::SetupHvExpansion()))  {
+	if (FAILED(HV::SetupHvExpansion())) {
 #ifdef DEBUG
 		DebugPrint("[LiveEmulation] Failed to setup hvexpansion!");
 #endif
 		return E_FAIL;
 	}
 
-#ifdef DEVKIT
-	DebugPrint("[LiveEmulation] Module LOADED!");
-#else
-	if (!Security::XBDMSanityCheck()) {
-#ifdef DEBUG
-		DebugPrint("[LiveEmulation] Failed XBDM Sanity Check!");
-#endif
-		return E_FAIL;
-	}
-#endif 
-
 	if (FAILED(KV::SetupKeyvault())) {
 #ifdef DEBUG
-		DebugPrint("[LiveEmulation] Failed to setup Keyvault!");
+		DebugPrint("[LiveEmulation] Failed to setup setkeyvault!");
 #endif
 		return E_FAIL;
 	}
 
-	if (FAILED(Requests::Setup())) {
-#ifdef DEBUG
-		DebugPrint("[LiveEmulation] Setup Networking failed!");
-#endif
-		return E_FAIL;
-	}
-	
+	Requests::Setup();
+
 	if (FAILED(Hooks::SetupSysHooks())) {
 #ifdef DEBUG
-		DebugPrint("[LiveEmulation] Setup SetupSysHooks failed!");
+		DebugPrint("[LiveEmulation] Failed to setup syshooks!");
 #endif
 		return E_FAIL;
 	}
-
-	//KVProtection::Setup(); //leave disabled for now 
-	
 	Utilities::StartThread(reinterpret_cast<LPTHREAD_START_ROUTINE>(Init_thread));
 	return ERROR_SUCCESS;
 }
@@ -98,19 +62,10 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
 			return FALSE;
 
 		KV::IsDevkit = *reinterpret_cast<PDWORD>(0x8E038610) & 0x8000 ? FALSE : TRUE;
-
 		Utilities::SetLiveBlock(TRUE);
-
-		if (FAILED(FunctionObfuscation(Invoker::RegisterPreAuthNatives, Utilities::GetFunctionSize(reinterpret_cast<PDWORD>(Invoker::RegisterPreAuthNatives))).DeleteNextCall().Call<DWORD>()))
-			return FALSE;
-
-		if (FAILED(FunctionObfuscation(Invoker::RegisterPreAuthNatives, Utilities::GetFunctionSize(reinterpret_cast<PDWORD>(Invoker::RegisterPreAuthNatives))).DeleteNextCall().Call<DWORD>()))
-			return FALSE;
-
-		if (FAILED(FunctionObfuscation(Invoker::RegisterPostCryptoNatives, Utilities::GetFunctionSize(reinterpret_cast<PDWORD>(Invoker::RegisterPostCryptoNatives))).DeleteNextCall().Call<DWORD>()))
-			return FALSE;
-
-		Security::ProtectMyMemorySpace();
+		Invoker::RegisterPreAuthNatives();
+		Invoker::RegisterPostCryptoNatives();
+		//Security::ProtectMyMemorySpace();
 		if (XamLoaderGetDvdTrayState() == DVD_TRAY_STATE_CLOSED || XamLoaderGetDvdTrayState() == DVD_TRAY_STATE_EMPTY) {
 			if (FAILED(LE::Init())) 
 				HalReturnToFirmware(HalResetSMCRoutine);

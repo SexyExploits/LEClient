@@ -112,13 +112,13 @@ DWORD Hooks::SetupSysHooks() {
 #endif
 		return E_FAIL;
 	} 
-
+	
 	if (!SUCCEEDED(Utilities::PatchModuleImport(MODULE_XAM, MODULE_KERNEL, 0x25F, reinterpret_cast<DWORD>(LiveTools::XKE)))) {
-#ifdef DEBUG
-		DebugPrint("XKE failed!");
-#endif
-		return E_FAIL;
+	#ifdef DEBUG
+			DebugPrint("XKE failed!");
+	#endif
+			return E_FAIL;
 	}
- 	Utilities::PatchInJump(reinterpret_cast<PDWORD>(KV::IsDevkit ? 0x0 : 0x818574F0), reinterpret_cast<DWORD>(LiveTools::XSC_XnpLogonSetChallengeResponseHook), FALSE);
+	Utilities::PatchInJump(reinterpret_cast<PDWORD>(KV::IsDevkit ? 0x0 : 0x81857DA0), reinterpret_cast<DWORD>(LiveTools::XSC_XnpLogonSetChallengeResponseHook), FALSE);
 	return ERROR_SUCCESS;
 }

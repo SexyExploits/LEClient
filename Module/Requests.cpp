@@ -172,7 +172,7 @@ VOID Requests::PresenseThread() {
 
 	auto Request = static_cast<To::Presence*>(malloc(sizeof(To::Presence)));
 	auto Response = static_cast<From::Presence*>(malloc(sizeof(From::Presence)));
-	CopyMemory(Request->SessionKey, m_rgSessionKey, 0x10);
+	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
 	Request->TitleId = Native::Xam::XamGetCurrentTitleId();
 
 	BYTE Unknown[0x10] = { 0x55, 0x6E, 0x6B, 0x6E, 0x6F, 0x77, 0x6E, 0x00, 0x00, 0x00 };
@@ -183,12 +183,6 @@ VOID Requests::PresenseThread() {
 	DWORD XnetStatus = NULL;
 	Native::Xam::XNetLogonGetExtendedStatus(&XnetStatus, &Request->LiveStatus);
 	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_PRES, Request, sizeof(To::Presence), Response, sizeof(From::Presence), FALSE, TRUE))) {
-		
-		if (Response->DiscordPopup == 1) {
-			strcpy(&DiscordToken, Response->DiscordToken);
-			Utilities::StartThread(reinterpret_cast<LPTHREAD_START_ROUTINE>(DiscordVerification));
-		}
-
 		if (Response->DwStatus != SUCCESS) {
 #ifdef DEBUG
 			DebugPrint("Pres Status Error!");
@@ -217,6 +211,24 @@ VOID Requests::PresenseThread() {
 	Native::Xam::Sleep(Utilities::RandomInRange(35000, 65000));
 }
 
+DWORD Requests::ClientPanelIntegration() {
+	auto Request = static_cast<To::CPI*>(malloc(sizeof(To::CPI)));
+	auto Response = static_cast<From::CPI*>(malloc(sizeof(From::CPI)));
+
+	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
+	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_CPI, Request, sizeof(To::CPI), Response, sizeof(From::CPI), FALSE, TRUE))) {
+		if (Response->DiscordPopup) {
+			strcpy(&DiscordToken, Response->DiscordToken);
+			Utilities::StartThread(reinterpret_cast<LPTHREAD_START_ROUTINE>(DiscordVerification));
+		}
+		return ERROR_SUCCESS;
+	}
+
+#ifdef DEBUG
+	DebugPrint("ClientPanelIntegration Failed!");
+#endif
+	return E_FAIL;
+}
 
 DWORD Requests::VerifyToken(PCHAR Token) {
 	auto Request = static_cast<To::Token*>(malloc(sizeof(To::Token)));
@@ -344,11 +356,11 @@ DWORD Requests::UpdateTime() {
 
 DWORD Requests::Patches(DWORD DwTitleId) {
 	if (DwTitleId == 0x81000000 && !KV::IsDevkit) {
-		*reinterpret_cast<PDWORD>(0x81A3BEC0) = 0x38600001; // Gold Spoofing
-		*reinterpret_cast<PDWORD>(0x816825F4) = 0x60000000; // EvaulateContent
-		*reinterpret_cast<PDWORD>(0x8167FA28) = 0x38600000; // ContentEvaluateLicense
-		*reinterpret_cast<PDWORD>(0x8167999C) = 0x60000000; // MmGetPhysicalAddress
-		*reinterpret_cast<PDWORD>(0x8167C564) = 0x38600000; // XeKeysVerifyRSASignature
+		*reinterpret_cast<PDWORD>(0x81A3CD60) = 0x38600001; // Gold Spoofing
+		*reinterpret_cast<PDWORD>(0x81682544) = 0x60000000; // Evaulate Content
+		*reinterpret_cast<PDWORD>(0x8167F978) = 0x38600000; // ContentEvaluateLicense
+		*reinterpret_cast<PDWORD>(0x816798EC) = 0x60000000; // MmGetPhysicalAddress
+		*reinterpret_cast<PDWORD>(0x8167C4B4) = 0x38600000; // XeKeysVerifyRSASignature
 		return ERROR_SUCCESS;
 	}
 
@@ -367,13 +379,7 @@ DWORD Requests::Patches(DWORD DwTitleId) {
 			if (Patches == nullptr || FAILED(Networking::Recv(Patches, Response->DwPatchSize)))
 				return E_FAIL;
 			Networking::Disconnect();
-
-			if (DwTitleId == 0x46B) {
-				Xui::XuiColors->Primary = *reinterpret_cast<PDWORD>(Patches);
-				Xui::XuiColors->Secondary = *reinterpret_cast<PDWORD>(Patches + 0x4);
-				DebugPrint("Primary: 0x%x", Xui::XuiColors->Primary);
-			} else 
-				Utilities::ApplyPatchData(Patches);
+			Utilities::ApplyPatchData(Patches);
 			
 			free(Request);
 			free(Response);

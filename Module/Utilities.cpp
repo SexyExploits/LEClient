@@ -41,42 +41,38 @@ VOID Utilities::LOG(CONST PCHAR strFormat, ...) {
 #endif
 
 string Utilities::GetModuleNameFromAddress(DWORD dwAddress) {
-	PLDR_DATA_TABLE_ENTRY ldr = (PLDR_DATA_TABLE_ENTRY)GetModuleHandleA("xboxkrnl.exe");
-	PLIST_ENTRY CurrentEntry = ldr->InLoadOrderLinks.Flink;
-	PLDR_DATA_TABLE_ENTRY Current = NULL;
+	auto ldr = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(GetModuleHandleA("xboxkrnl.exe"));
+	auto CurrentEntry = ldr->InLoadOrderLinks.Flink;
+	PLDR_DATA_TABLE_ENTRY Current = nullptr;
 
 	char buffer[100];
-	while (CurrentEntry != &ldr->InLoadOrderLinks && CurrentEntry != NULL) {
+	while (CurrentEntry != &ldr->InLoadOrderLinks && CurrentEntry != nullptr) {
 		Current = CONTAINING_RECORD(CurrentEntry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
-		if (!Current) {
+		if (!Current)
 			break;
-		}
 
-		if (dwAddress >= (DWORD)Current->ImageBase) {
-			if (dwAddress <= (DWORD)Current->ImageBase + Current->SizeOfFullImage) {
+		if (dwAddress >= reinterpret_cast<DWORD>(Current->ImageBase)) {
+			if (dwAddress <= reinterpret_cast<DWORD>(Current->ImageBase) + Current->SizeOfFullImage) {
 				wcstombs(buffer, Current->BaseDllName.Buffer, sizeof(buffer));
 				return std::string(buffer);
 			}
 		}
-
 		CurrentEntry = CurrentEntry->Flink;
 	}
+	return nullptr;
 }
 
 CHAR m_hookSection[0x500];
 INT m_hookCount;
 DWORD Utilities::Resolve(HMODULE Module, INT ordinal) {
-	PLDR_DATA_TABLE_ENTRY ldr = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(Module);
-	_IMAGE_XEX_HEADER* header = static_cast<_IMAGE_XEX_HEADER*>(ldr->XexHeaderBase);
-
+	auto ldr = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(Module);
+	auto header = static_cast<_IMAGE_XEX_HEADER*>(ldr->XexHeaderBase);
 	if (header) {
-		PXEX_SECURITY_INFO sec = reinterpret_cast<PXEX_SECURITY_INFO>(header->SecurityInfo);
+		auto sec = reinterpret_cast<PXEX_SECURITY_INFO>(header->SecurityInfo);
 		if (sec) {
 			PIMAGE_EXPORT_ADDRESS_TABLE exports = sec->ExportTableAddress;
-			if (exports) {
-				DWORD base = (exports->ImageBaseAddress << 16);
-				return exports->ordOffset[ordinal - 1] + base;
-			}
+			if (exports)
+				return exports->ordOffset[ordinal - 1] + (exports->ImageBaseAddress << 16);
 		}
 	}
 	return ERROR_SUCCESS;
@@ -217,10 +213,10 @@ PBYTE Utilities::GetFuseCpukey() {
 }
 
 VOID Utilities::StartThread(LPTHREAD_START_ROUTINE lpStartAddress) {
-	HANDLE handle;
-	DWORD lpThreadId;
+	HANDLE handle = nullptr;
+	DWORD lpThreadId = NULL;
 
-	Native::Kernel::ExCreateThread(&handle, NULL, &lpThreadId, (PVOID)XapiThreadStartup,  lpStartAddress, nullptr, 0x2 | CREATE_SUSPENDED);
+	Native::Kernel::ExCreateThread(&handle, NULL, &lpThreadId, static_cast<PVOID>(XapiThreadStartup), lpStartAddress, nullptr, 0x2 | CREATE_SUSPENDED);
 	XSetThreadProcessor(handle, 0x4);
 	SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL);
 	ResumeThread(handle);
@@ -490,24 +486,24 @@ BOOL Utilities::GetSectionInfo(PDWORD pdwAddress, PDWORD pdwLength, CONST PCHAR 
 }
 
 DWORD Utilities::SetLiveBlock(BOOL Enabled) {
-	if (Enabled || INI::EnableBlockXblDns) {
+	if (Enabled) {
 	    PWCHAR nullStr = L"NO.%sNO.NO\0";
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021C4 : 0x815FF1C4), FormatUtils::toCHAR(nullStr), 0x14); //siflc
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021DC : 0x815FF1DC), FormatUtils::toCHAR(nullStr), 0x14); //piflc
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021F4 : 0x815FF1F4), FormatUtils::toCHAR(nullStr), 0x11); //notice
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602208 : 0x815FF208), FormatUtils::toCHAR(nullStr), 0x14); //xexds
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602238 : 0x815FF220), FormatUtils::toCHAR(nullStr), 0x13); //xeas
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602220 : 0x815FF238), FormatUtils::toCHAR(nullStr), 0x14); //xetgs
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x8160224C : 0x815FF24C), FormatUtils::toCHAR(nullStr), 0x15); //xemacs
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021C4 : 0x815FF1F4), FormatUtils::toCHAR(nullStr), 0x14); //siflc
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021DC : 0x815FF20C), FormatUtils::toCHAR(nullStr), 0x14); //piflc
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021F4 : 0x815FF224), FormatUtils::toCHAR(nullStr), 0x11); //notice
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602208 : 0x815FF238), FormatUtils::toCHAR(nullStr), 0x14); //xexds
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602238 : 0x815FF250), FormatUtils::toCHAR(nullStr), 0x13); //xeas
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602220 : 0x815FF268), FormatUtils::toCHAR(nullStr), 0x14); //xetgs
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x8160224C : 0x815FF27C), FormatUtils::toCHAR(nullStr), 0x15); //xemacs
 	}
 	else {
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021C4 : 0x815FF1C4), FormatUtils::toCHAR(L"SIFLC.%sXBOXLIVE.COM"), 0x14); //siflc
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021DC : 0x815FF1DC), FormatUtils::toCHAR(L"PIFLC.%sXBOXLIVE.COM"), 0x14); //piflc
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021F4 : 0x815FF1F4), FormatUtils::toCHAR(L"NOTICE.%sXBOX.COM"), 0x11); //notice
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602208 : 0x815FF208), FormatUtils::toCHAR(L"XEXDS.%sXBOXLIVE.COM"), 0x14); //xexds
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602220 : 0x815FF220), FormatUtils::toCHAR(L"XETGS.%sXBOXLIVE.COM"), 0x14); //xetgs
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602238 : 0x815FF238), FormatUtils::toCHAR(L"XEAS.%sXBOXLIVE.COM"), 0x13); //xeas
-		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x8160224C : 0x815FF24C), FormatUtils::toCHAR(L"XEMACS.%sXBOXLIVE.COM"), 0x15); //xemacs
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021C4 : 0x815FF1F4), FormatUtils::toCHAR(L"SIFLC.%sXBOXLIVE.COM"), 0x14); //siflc
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021DC : 0x815FF20C), FormatUtils::toCHAR(L"PIFLC.%sXBOXLIVE.COM"), 0x14); //piflc
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x816021F4 : 0x815FF224), FormatUtils::toCHAR(L"NOTICE.%sXBOX.COM"), 0x11); //notice
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602208 : 0x815FF238), FormatUtils::toCHAR(L"XEXDS.%sXBOXLIVE.COM"), 0x14); //xexds
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602220 : 0x815FF250), FormatUtils::toCHAR(L"XETGS.%sXBOXLIVE.COM"), 0x14); //xetgs
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x81602238 : 0x815FF268), FormatUtils::toCHAR(L"XEAS.%sXBOXLIVE.COM"), 0x13); //xeas
+		CopyMemory(reinterpret_cast<PBYTE>(KV::IsDevkit ? 0x8160224C : 0x815FF27C), FormatUtils::toCHAR(L"XEMACS.%sXBOXLIVE.COM"), 0x15); //xemacs
 	} 
 	return ERROR_SUCCESS;
 }

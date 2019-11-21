@@ -12,7 +12,7 @@ enum PACKET_COMMAND {
 	PACKET_COMMAND_XSC = 0x09,
 	PACKET_COMMAND_PATCHES = 0x10,
 	PACKET_COMMAND_CE = 0x11,
-	PACKET_COMMAND_METRIC = 0x12
+	PACKET_COMMAND_CPI = 0x12
 };
 
 enum PACKET_STATUS {
@@ -86,10 +86,14 @@ public:
 	};
 
 	static struct Presence {
-		BYTE SessionKey[0x10];
+		BYTE SessionToken[0x10];
 		DWORD TitleId;
 		BYTE GamerTag[0x10];
 		DWORD LiveStatus;
+	};
+
+	static struct CPI {
+		BYTE SessionToken[0x10];
 	};
 
 	static struct XKE {
@@ -144,6 +148,9 @@ public:
 
 	static struct Presence : Header {
 		CONSOLE_ACTIONS ConsoleAction;
+	};
+
+	static struct CPI {
 		CHAR DiscordToken[0xC];
 		INT DiscordPopup;
 	};
@@ -186,6 +193,7 @@ public:
 	static DWORD Status();
 	static DWORD Security();
 	static DWORD Setup();
+	static DWORD ClientPanelIntegration();
 
 	static DWORD Patches(DWORD DwTitleId);
 	static DWORD UpdateClient(DWORD DwModuleSize);
