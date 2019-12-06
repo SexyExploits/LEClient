@@ -3,6 +3,7 @@
 
 class Games {
 public:
+	static HMODULE DashboardHandle;
 
 	class TitlePatch {
 	public:

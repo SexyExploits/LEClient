@@ -287,8 +287,11 @@
   <ItemGroup>
     <ClInclude Include="Config.h" />
     <ClInclude Include="CryptoTools.h" />
+    <ClInclude Include="Dashboard_Defs.h" />
+    <ClInclude Include="Dashboard_UI.h" />
     <ClInclude Include="FormatUtils.h" />
     <ClInclude Include="Games.h" />
+    <ClInclude Include="HUD_UI.h" />
     <ClInclude Include="IntegrityManager.h" />
     <ClInclude Include="invoker.h" />
     <ClInclude Include="KVGuard.h" />
@@ -311,8 +314,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CryptoTools.cpp" />
+    <ClCompile Include="Dashboard_Defs.cpp" />
+    <ClCompile Include="Dashboard_UI.cpp" />
     <ClCompile Include="FormatUtils.cpp" />
     <ClCompile Include="Games.cpp" />
+    <ClCompile Include="HUD_UI.cpp" />
     <ClCompile Include="IntegrityManager.cpp" />
     <ClCompile Include="invoker.cpp" />
     <ClCompile Include="KVGuard.cpp" />

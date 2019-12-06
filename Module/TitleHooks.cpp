@@ -1,7 +1,8 @@
 ﻿#include "stdafx.h"
 
 DWORD BrandColorPress = 0xFF0fb391;
-DWORD BrandColor = 0xFF0a7562;
+
+HMODULE Games::DashboardHandle = nullptr;
 
 BOOL Games::TitlePatch::DashLoaded = false;
 VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHandle) {
@@ -31,7 +32,7 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 	}
 #endif
 
-	if (wcscmp(ModuleHandle->BaseDllName.Buffer, L"dash.social.lex") == NULL) {
+	/*if (wcscmp(ModuleHandle->BaseDllName.Buffer, L"dash.social.lex") == NULL) {
 		if (INI::DashUiModifications) {
 			*reinterpret_cast<PDWORD>(0x9AFC4876) = BrandColor;
 		}
@@ -68,9 +69,10 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 			*reinterpret_cast<PDWORD>(0x9B124609) = BrandColor;
 		}
 	}
-
+	*/
 	if (wcscmp(ModuleHandle->BaseDllName.Buffer, FormatUtils::toWCHAR("%s", MODULE_DASH)) == NULL || wcscmp(ModuleHandle->BaseDllName.Buffer, FormatUtils::toWCHAR("%s", MODULE_XSHELL)) == NULL) {
 		DashLoaded = true;
+		DashboardHandle = (HMODULE)ModuleHandle;
 		//Xui::vDashHome.emplace_back(std::make_pair(std::make_pair("manifest.xboxlive.com", "/manifest/epix/en-US/dashhome.xml"), "/LE-XUI/manifest/epix/en-US/dashhome.xml"));
 		//Xui::NetDll_XHttpConnect_Original = reinterpret_cast<Xui::tNetDll_XHttpConnect>(Utilities::HookFunctionStub(Utilities::Resolve(static_cast<HMODULE>(LE::Xamhandle), 0xCD), Xui::NetDll_XHttpConnect_Hook));
 		//Xui::NetDll_XHttpSendRequest_Original = reinterpret_cast<Xui::tNetDll_XHttpSendRequest>(Utilities::HookFunctionStub(Utilities::Resolve(static_cast<HMODULE>(LE::Xamhandle), 0xD1), Xui::NetDll_XHttpSendRequest_Hook));
@@ -78,7 +80,10 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 		//Xui::DashBuildResourceLocatorStub = reinterpret_cast<Xui::tDashBuildResourceLocator>(Utilities::HookFunctionStub(0x922005B8, Xui::DashBuildResourceLocator));
 		//Xui::DashCommandHandlerStub = reinterpret_cast<Xui::tDashCommandHandler>(Utilities::HookFunctionStub(0x92324498, Xui::DashCommandHandlerHook));
 
-		strcpy(reinterpret_cast<PCHAR>(0x92BAF010), "LiveEmulation  "); // sign in our out 
+		if (INI::DashUiModifications) {
+			XuiElementBeginRenderStub = (tXuiElementBeginRender)Utilities::HookFunctionStub(Utilities::Resolve(DashboardHandle, 10451), XuiElementBeginRenderHook);
+		}
+		/*strcpy(reinterpret_cast<PCHAR>(0x92BAF010), "LiveEmulation  "); // sign in our out 
 		strcpy(reinterpret_cast<PCHAR>(0x92BAEFFC), "LiveEmulation.com  "); // Choose your profile
 		strcpy(reinterpret_cast<PCHAR>(0x9140D2DC), "LE Home  "); // Xbox Home Button 
 
@@ -104,11 +109,14 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 			*reinterpret_cast<PDWORD>(0x92B50E03) = 0xff039678;
 			*reinterpret_cast<PDWORD>(0x92BADFC0) = BrandColorPress; // Sign In Text Color
 		}
+		*/
+
+
 	}
 	else {
 		if (wcscmp(ModuleHandle->BaseDllName.Buffer, FormatUtils::toWCHAR("%s", MODULE_HUD)) == NULL) {
 			if (INI::HudColorModifications) {
-				// hud skin
+				/* hud skin
 				*reinterpret_cast<PDWORD>(0xC1197248) = BrandColor; // xbox Dark Green
 				*reinterpret_cast<PDWORD>(0xC1197278) = BrandColorPress; // xbox light green
 
@@ -117,6 +125,7 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 				*reinterpret_cast<PDWORD>(0xC119733D) = BrandColor;
 				*reinterpret_cast<PDWORD>(0xC1197341) = BrandColor;
 				*reinterpret_cast<PDWORD>(0xC1074394) = BrandColor; // Keyboard Blinker
+				*/
 			}
 
 			//Utilities::PatchModuleImport(ModuleHandle, MODULE_XAM, 0x34A, reinterpret_cast<DWORD>(Xui::XuiRegisterClassHook));

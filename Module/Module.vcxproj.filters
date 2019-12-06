@@ -64,6 +64,15 @@
     <ClCompile Include="KVGuard.cpp">
       <Filter>Source Files\Security</Filter>
     </ClCompile>
+    <ClCompile Include="HUD_UI.cpp">
+      <Filter>Source Files\UI\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="Dashboard_UI.cpp">
+      <Filter>Source Files\UI\Dashboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Dashboard_Defs.cpp">
+      <Filter>Source Files\UI\Dashboard</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KeyVault.h">
@@ -135,6 +144,15 @@
     <ClInclude Include="KVGuard.h">
       <Filter>Header Files\Security</Filter>
     </ClInclude>
+    <ClInclude Include="HUD_UI.h">
+      <Filter>Header Files\UI\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="Dashboard_UI.h">
+      <Filter>Header Files\UI\Dashboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Dashboard_Defs.h">
+      <Filter>Header Files\UI\Dashboard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -187,6 +205,18 @@
     </Filter>
     <Filter Include="Source Files\Networking">
       <UniqueIdentifier>{07a6b230-2d2a-4187-9e64-ad36f6ab738e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\HUD">
+      <UniqueIdentifier>{7d623d03-5ff2-4d55-873a-5d01d092ab29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Dashboard">
+      <UniqueIdentifier>{49384325-c4f8-47b8-9e5e-0a169ac82efc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI\HUD">
+      <UniqueIdentifier>{f93104ad-bbee-4d2f-b5d8-a8cf1bdb1b56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI\Dashboard">
+      <UniqueIdentifier>{74091e8d-a429-4158-bd74-c8e1a2ea7841}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

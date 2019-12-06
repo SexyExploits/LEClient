@@ -41,3 +41,6 @@ using namespace std;
 #include "Games.h"
 #include "INIPhaser.h"
 #include "Xui.h"
+#include "HUD_UI.h"
+#include "Dashboard_Defs.h"
+#include "Dashboard_UI.h"

@@ -1,4 +1,51 @@
-﻿  LiveTools.cpp
-     Creating library C:\Users\Christian\source\repos\LiveEmulation V4\LEClient\LEClient\Module\Release_LTCG\LEClient.lib and object C:\Users\Christian\source\repos\LiveEmulation V4\LEClient\LEClient\Module\Release_LTCG\LEClient.exp
+﻿  Networking.cpp
+c:\users\jay\documents\github\leclient\module\invoker.h(223): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\jay\documents\github\leclient\module\ThreadPool.h(74): warning C4018: '<' : signed/unsigned mismatch
+Networking.cpp(111): warning C4309: 'static_cast' : truncation of constant value
+Networking.cpp(112): warning C4309: 'static_cast' : truncation of constant value
+  CryptoTools.cpp
+  Dashboard_Defs.cpp
+Dashboard_Defs.cpp(139): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+  Dashboard_UI.cpp
+  FormatUtils.cpp
+FormatUtils.cpp(93): warning C4018: '<' : signed/unsigned mismatch
+  Games.cpp
+  HUD_UI.cpp
+  HV.cpp
+  INIPhaser.cpp
+INIPhaser.cpp(126): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(128): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(129): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(130): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(131): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(133): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(134): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(135): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(136): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+INIPhaser.cpp(137): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+  IntegrityManager.cpp
+  KVGuard.cpp
+  KeyVault.cpp
+  LiveEmulation.cpp
+  LiveTools.cpp
+  Requests.cpp
+  SysHooks.cpp
+  SysSecurity.cpp
+SysSecurity.cpp(11): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(12): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(94): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(101): warning C4018: '<' : signed/unsigned mismatch
+  ThreadPool.cpp
+  TitleHooks.cpp
+  Utilities.cpp
+Utilities.cpp(212): warning C4172: returning address of local variable or temporary
+  Xui.cpp
+  Compiling...
+  XuiData.cpp
+  invoker.cpp
+invoker.cpp(67): warning C4018: '<' : signed/unsigned mismatch
+  launch.cpp
+     Creating library C:\Users\Jay\Documents\GitHub\LEClient\Module\Release_LTCG\LEClient.lib and object C:\Users\Jay\Documents\GitHub\LEClient\Module\Release_LTCG\LEClient.exp
   Generating code
   Finished generating code
+xbecopy : error X1001: Could not connect to Xbox 360 'Jtag'
