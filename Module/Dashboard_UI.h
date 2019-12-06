@@ -5,3 +5,5 @@ typedef HRESULT(*tXuiElementBeginRender)(HXUIOBJ hObj, XUIMessageRender *pRender
 extern tXuiElementBeginRender XuiElementBeginRenderStub;
 
 extern HRESULT XuiElementBeginRenderHook(HXUIOBJ hObj, XUIMessageRender *pRenderData, XUIRenderStruct *pRenderStruct);
+
+extern VOID ResolveFunctions();

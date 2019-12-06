@@ -81,6 +81,8 @@ VOID Games::TitlePatch::InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHand
 		//Xui::DashCommandHandlerStub = reinterpret_cast<Xui::tDashCommandHandler>(Utilities::HookFunctionStub(0x92324498, Xui::DashCommandHandlerHook));
 
 		if (INI::DashUiModifications) {
+			ResolveFunctions();
+
 			XuiElementBeginRenderStub = (tXuiElementBeginRender)Utilities::HookFunctionStub(Utilities::Resolve(DashboardHandle, 10451), XuiElementBeginRenderHook);
 		}
 		/*strcpy(reinterpret_cast<PCHAR>(0x92BAF010), "LiveEmulation  "); // sign in our out 

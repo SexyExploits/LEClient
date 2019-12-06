@@ -5,7 +5,7 @@ Networking.cpp(111): warning C4309: 'static_cast' : truncation of constant value
 Networking.cpp(112): warning C4309: 'static_cast' : truncation of constant value
   CryptoTools.cpp
   Dashboard_Defs.cpp
-Dashboard_Defs.cpp(139): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+Dashboard_Defs.cpp(21): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
   Dashboard_UI.cpp
   FormatUtils.cpp
 FormatUtils.cpp(93): warning C4018: '<' : signed/unsigned mismatch
