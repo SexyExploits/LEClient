@@ -40,6 +40,8 @@ DWORD LE::Init() {
 		return E_FAIL;
 	}
 
+	INI::Init();
+
 	Requests::Setup();
 
 	if (FAILED(Hooks::SetupSysHooks())) {

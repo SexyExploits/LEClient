@@ -73,6 +73,21 @@
     <ClCompile Include="Dashboard_Defs.cpp">
       <Filter>Source Files\UI\Dashboard</Filter>
     </ClCompile>
+    <ClCompile Include="Tab_LiveEmulation.cpp">
+      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="Tab_UI.cpp">
+      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="Tab_Bypasses.cpp">
+      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="Tab_Cheats.cpp">
+      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    </ClCompile>
+    <ClCompile Include="Tab_Changes.cpp">
+      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KeyVault.h">
@@ -217,6 +232,9 @@
     </Filter>
     <Filter Include="Header Files\UI\Dashboard">
       <UniqueIdentifier>{74091e8d-a429-4158-bd74-c8e1a2ea7841}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\HUD\LE Menu Tabs">
+      <UniqueIdentifier>{a7e620b0-decc-49a0-a59e-ae73bfa6101c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

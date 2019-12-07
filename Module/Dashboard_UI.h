@@ -1,9 +1,14 @@
 #pragma once
 #include "stdafx.h"
 
-typedef HRESULT(*tXuiElementBeginRender)(HXUIOBJ hObj, XUIMessageRender *pRenderData, XUIRenderStruct *pRenderStruct);
-extern tXuiElementBeginRender XuiElementBeginRenderStub;
+extern DWORD Color1;
+extern DWORD Color2;
 
-extern HRESULT XuiElementBeginRenderHook(HXUIOBJ hObj, XUIMessageRender *pRenderData, XUIRenderStruct *pRenderStruct);
+namespace Dashboard_UI {
+	typedef HRESULT(*tXuiElementBeginRender)(HXUIOBJ hObj, XUIMessageRender *pRenderData, XUIRenderStruct *pRenderStruct);
+	extern tXuiElementBeginRender XuiElementBeginRenderStub;
 
-extern VOID ResolveFunctions();
+	extern HRESULT XuiElementBeginRenderHook(HXUIOBJ hObj, XUIMessageRender *pRenderData, XUIRenderStruct *pRenderStruct);
+
+	extern VOID ResolveFunctions();
+}

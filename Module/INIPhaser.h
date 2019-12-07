@@ -13,9 +13,12 @@ public:
 
 	// ui
 	static BOOL CustomNotification;
-	static BOOL DashUiModifications;
-	static BOOL HudColorModifications;
+	static BOOL LEImage;
 	static BOOL DrawGuideInformation;
+	static BOOL Gradient;
+	static BOOL GradientBG;
+	static BOOL GradientBtns;
+	static BOOL ColorFade;
 
 	// bypass
 	static BOOL GhostBypass;

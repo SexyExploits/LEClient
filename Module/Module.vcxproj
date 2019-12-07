@@ -326,6 +326,11 @@
     <ClCompile Include="LiveEmulation.cpp" />
     <ClCompile Include="LiveTools.cpp" />
     <ClCompile Include="SysSecurity.cpp" />
+    <ClCompile Include="Tab_Bypasses.cpp" />
+    <ClCompile Include="Tab_Changes.cpp" />
+    <ClCompile Include="Tab_Cheats.cpp" />
+    <ClCompile Include="Tab_LiveEmulation.cpp" />
+    <ClCompile Include="Tab_UI.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Xui.cpp" />
     <ClCompile Include="HV.cpp" />

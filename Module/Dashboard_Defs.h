@@ -21,10 +21,10 @@ namespace Dashboard_Structures {
 
 #ifdef __cplusplus
 		XUIElementPropVal() {
-			((void(*)(...))(Utilities::Resolve(Games::DashboardHandle, 10079)))(this);
+			((void(*)(...))(Utilities::Resolve((HMODULE)Games::DashboardHandle, 10079)))(this);
 		}
 		~XUIElementPropVal() {
-			((void(*)(...))(Utilities::Resolve(Games::DashboardHandle, 10080)))(this);
+			((void(*)(...))(Utilities::Resolve((HMODULE)Games::DashboardHandle, 10080)))(this);
 		}
 #endif
 	};
@@ -64,9 +64,23 @@ namespace Dashboard_Calls {
 	extern HRESULT(*XuiElementGetId)(HXUIOBJ hObj, LPCWSTR *pszId);
 	extern HRESULT(*XuiElementGetChildById)(HXUIOBJ hObj, LPCWSTR szId, HXUIOBJ *phChild);
 
+	extern HRESULT(*XuiElementAddChild)(HXUIOBJ hObj, HXUIOBJ hChild);
 	extern HRESULT(*XuiElementGetParent)(HXUIOBJ hObj, HXUIOBJ* phParent);
 
 	extern HRESULT(*XuiFigureSetFill)(HXUIOBJ hObj, XUI_FILL_TYPE nFillType, DWORD dwFillColor, XUIGradientStop *pStops, int nNumStops, float fGradientAngle, const D3DXVECTOR2 *pvScale, const D3DXVECTOR2 *pvTrans);
 
-	extern HRESULT SetFill(HXUIOBJ hObj, DWORD Color1, DWORD Color2);
+	extern HRESULT(*XuiCreateObject)(LPCWSTR szClassName, HXUIOBJ *phObj);
+	extern HRESULT(*XuiElementSetBounds)(HXUIOBJ hObj, float fWidth, float fHeight);
+	extern HRESULT(*XuiElementSetPosition)(HXUIOBJ hObj, const D3DXVECTOR3 *pvPos);
+
+	extern HRESULT(*XUIElementPropVal_SetString)(Dashboard_Structures::XUIElementPropVal* pThis, LPCWSTR val);
+	extern HRESULT(*XuiObjectGetProperty)(HXUIOBJ hObj, DWORD dwPropId, DWORD dwIndex, Dashboard_Structures::XUIElementPropVal *pVal);
+	extern HRESULT(*XuiObjectSetProperty)(HXUIOBJ hObj, DWORD dwPropId, DWORD dwIndex, const Dashboard_Structures::XUIElementPropVal *pVal);
+	extern HRESULT(*XuiObjectGetPropertyId)(HXUIOBJ hObj, LPCWSTR szPropName, DWORD *pdwId);
+
+	extern HRESULT SetFill(HXUIOBJ hObj, DWORD Color1, DWORD Color2, BOOL Gradient);
+
+	extern HRESULT SetProperty(HXUIOBJ Obj, LPCWSTR szPropName, Dashboard_Structures::XUIElementPropVal* propVal);
+
+	extern HRESULT GetProperty(HXUIOBJ Obj, LPCWSTR szPropName, Dashboard_Structures::XUIElementPropVal* propVal);
 }

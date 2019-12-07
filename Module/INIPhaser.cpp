@@ -3,9 +3,12 @@
 BOOL INI::EnableBlockXblDns;
 BOOL INI::MachineIDSpoofing;
 BOOL INI::CustomNotification;
-BOOL INI::DashUiModifications;
-BOOL INI::HudColorModifications;
+BOOL INI::LEImage;
 BOOL INI::DrawGuideInformation;
+BOOL INI::Gradient;
+BOOL INI::GradientBG;
+BOOL INI::GradientBtns;
+BOOL INI::ColorFade;
 BOOL INI::GhostBypass;
 BOOL INI::AwBypass;
 BOOL INI::BO2Bypass;
@@ -125,10 +128,13 @@ VOID INI::Init() {
 VOID INI::UpdateSettings() {
 	ini.SetBoolValue("LiveEnvironment", "Enable_BlockXblDns", EnableBlockXblDns);
 
-	ini.SetBoolValue("UI", "Enable_DashUiModifications", DashUiModifications);
-	ini.SetBoolValue("UI", "Enable_HudColorModifications", HudColorModifications);
 	ini.SetBoolValue("UI", "Enable_DrawGuideInformation", DrawGuideInformation);
 	ini.SetBoolValue("UI", "Enable_CustomNotification", CustomNotification);
+	ini.SetBoolValue("UI", "Enable_LEImage", LEImage);
+	ini.SetBoolValue("UI", "Enable_Gradient", Gradient);
+	ini.SetBoolValue("UI", "Enable_GradientBG", GradientBG);
+	ini.SetBoolValue("UI", "Enable_GradientBtns", GradientBtns);
+	ini.SetBoolValue("UI", "Enable_ColorFade", ColorFade);
 	
 	ini.SetBoolValue("Bypass", "Enable_MachineIDSpoof", MachineIDSpoofing);
 	ini.SetBoolValue("Bypass", "Enable_Ghosts_Bypass", GhostBypass);
@@ -145,11 +151,14 @@ VOID INI::Read() {
 
 	EnableBlockXblDns = ini.GetBoolValue("LiveEnvironment", "Enable_BlockXblDns");
 
-	DashUiModifications = ini.GetBoolValue("UI", "Enable_DashUiModifications");
-	HudColorModifications = ini.GetBoolValue("UI", "Enable_HudColorModifications");
 	DrawGuideInformation = ini.GetBoolValue("UI", "Enable_DrawGuideInformation");
 	CustomNotification = ini.GetBoolValue("UI", "Enable_CustomNotification");
-
+	LEImage = ini.GetBoolValue("UI", "Enable_LEImage");
+	Gradient = ini.GetBoolValue("UI", "Enable_Gradient");
+	GradientBG = ini.GetBoolValue("UI", "Enable_GradientBG");
+	GradientBtns = ini.GetBoolValue("UI", "Enable_GradientBtns");
+	ColorFade = ini.GetBoolValue("UI", "Enable_ColorFade");
+	
 	MachineIDSpoofing = ini.GetBoolValue("Bypass", "Enable_MachineIDSpoof");
 	GhostBypass = ini.GetBoolValue("Bypass", "Enable_Ghosts_Bypass");
 	AwBypass = ini.GetBoolValue("Bypass", "Enable_AW_Bypass");
