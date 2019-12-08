@@ -1,24 +1,24 @@
 #include "stdafx.h"
 
-BOOL INI::EnableBlockXblDns;
-BOOL INI::MachineIDSpoofing;
-BOOL INI::CustomNotification;
-BOOL INI::LEImage;
-BOOL INI::DrawGuideInformation;
-BOOL INI::Gradient;
-BOOL INI::GradientBG;
-BOOL INI::GradientBtns;
-BOOL INI::ColorFade;
-BOOL INI::GhostBypass;
-BOOL INI::AwBypass;
-BOOL INI::BO2Bypass;
-BOOL INI::B03Bypass;
+bool INI::EnableBlockXblDns;
+bool INI::MachineIDSpoofing;
+bool INI::CustomNotification;
+bool INI::LEImage;
+bool INI::DrawGuideInformation;
+bool INI::Gradient;
+bool INI::GradientBG;
+bool INI::GradientBtns;
+bool INI::ColorFade;
+bool INI::GhostBypass;
+bool INI::AwBypass;
+bool INI::BO2Bypass;
+bool INI::B03Bypass;
 CSimpleIniA ini;
 
-VOID INI::Create() {
+void INI::Create() {
 
 	BYTE INIData[0x47F] = {
-    0xEF, 0xBB, 0xBF, 0x23, 0x20, 0x20, 0x20, 0x20, 0x20, 0x5F, 0x5F, 0x20,
+	0xEF, 0xBB, 0xBF, 0x23, 0x20, 0x20, 0x20, 0x20, 0x20, 0x5F, 0x5F, 0x20,
 	0x20, 0x20, 0x20, 0x20, 0x5F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
 	0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x5F,
 	0x5F, 0x5F, 0x5F, 0x5F, 0x5F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
@@ -120,48 +120,48 @@ VOID INI::Create() {
 	Read();
 }
 
-VOID INI::Init() {
-	 ini.SetUnicode(); 
-	 Utilities::FileExists(INI_Path) ? Read() : Create();
+void INI::Init() {
+	ini.SetUnicode();
+	Utilities::FileExists(INI_Path) ? Read() : Create();
 }
 
-VOID INI::UpdateSettings() {
-	ini.SetBoolValue("LiveEnvironment", "Enable_BlockXblDns", EnableBlockXblDns);
+void INI::UpdateSettings() {
+	ini.SetboolValue("LiveEnvironment", "Enable_BlockXblDns", EnableBlockXblDns);
 
-	ini.SetBoolValue("UI", "Enable_DrawGuideInformation", DrawGuideInformation);
-	ini.SetBoolValue("UI", "Enable_CustomNotification", CustomNotification);
-	ini.SetBoolValue("UI", "Enable_LEImage", LEImage);
-	ini.SetBoolValue("UI", "Enable_Gradient", Gradient);
-	ini.SetBoolValue("UI", "Enable_GradientBG", GradientBG);
-	ini.SetBoolValue("UI", "Enable_GradientBtns", GradientBtns);
-	ini.SetBoolValue("UI", "Enable_ColorFade", ColorFade);
-	
-	ini.SetBoolValue("Bypass", "Enable_MachineIDSpoof", MachineIDSpoofing);
-	ini.SetBoolValue("Bypass", "Enable_Ghosts_Bypass", GhostBypass);
-	ini.SetBoolValue("Bypass", "Enable_AW_Bypass", AwBypass);
-	ini.SetBoolValue("Bypass", "Enable_BO2_Bypass", BO2Bypass);
-	ini.SetBoolValue("Bypass", "Enable_BO3_Bypass", B03Bypass);
+	ini.SetboolValue("UI", "Enable_DrawGuideInformation", DrawGuideInformation);
+	ini.SetboolValue("UI", "Enable_CustomNotification", CustomNotification);
+	ini.SetboolValue("UI", "Enable_LEImage", LEImage);
+	ini.SetboolValue("UI", "Enable_Gradient", Gradient);
+	ini.SetboolValue("UI", "Enable_GradientBG", GradientBG);
+	ini.SetboolValue("UI", "Enable_GradientBtns", GradientBtns);
+	ini.SetboolValue("UI", "Enable_ColorFade", ColorFade);
+
+	ini.SetboolValue("Bypass", "Enable_MachineIDSpoof", MachineIDSpoofing);
+	ini.SetboolValue("Bypass", "Enable_Ghosts_Bypass", GhostBypass);
+	ini.SetboolValue("Bypass", "Enable_AW_Bypass", AwBypass);
+	ini.SetboolValue("Bypass", "Enable_BO2_Bypass", BO2Bypass);
+	ini.SetboolValue("Bypass", "Enable_BO3_Bypass", B03Bypass);
 
 	ini.SaveFile(INI_Path);
 }
 
 
-VOID INI::Read() {
+void INI::Read() {
 	ini.LoadFile(INI_Path);
 
-	EnableBlockXblDns = ini.GetBoolValue("LiveEnvironment", "Enable_BlockXblDns");
+	EnableBlockXblDns = ini.GetboolValue("LiveEnvironment", "Enable_BlockXblDns");
 
-	DrawGuideInformation = ini.GetBoolValue("UI", "Enable_DrawGuideInformation");
-	CustomNotification = ini.GetBoolValue("UI", "Enable_CustomNotification");
-	LEImage = ini.GetBoolValue("UI", "Enable_LEImage");
-	Gradient = ini.GetBoolValue("UI", "Enable_Gradient");
-	GradientBG = ini.GetBoolValue("UI", "Enable_GradientBG");
-	GradientBtns = ini.GetBoolValue("UI", "Enable_GradientBtns");
-	ColorFade = ini.GetBoolValue("UI", "Enable_ColorFade");
-	
-	MachineIDSpoofing = ini.GetBoolValue("Bypass", "Enable_MachineIDSpoof");
-	GhostBypass = ini.GetBoolValue("Bypass", "Enable_Ghosts_Bypass");
-	AwBypass = ini.GetBoolValue("Bypass", "Enable_AW_Bypass");
-	BO2Bypass = ini.GetBoolValue("Bypass", "Enable_BO2_Bypass");
-	B03Bypass = ini.GetBoolValue("Bypass", "Enable_BO3_Bypass");
+	DrawGuideInformation = ini.GetboolValue("UI", "Enable_DrawGuideInformation");
+	CustomNotification = ini.GetboolValue("UI", "Enable_CustomNotification");
+	LEImage = ini.GetboolValue("UI", "Enable_LEImage");
+	Gradient = ini.GetboolValue("UI", "Enable_Gradient");
+	GradientBG = ini.GetboolValue("UI", "Enable_GradientBG");
+	GradientBtns = ini.GetboolValue("UI", "Enable_GradientBtns");
+	ColorFade = ini.GetboolValue("UI", "Enable_ColorFade");
+
+	MachineIDSpoofing = ini.GetboolValue("Bypass", "Enable_MachineIDSpoof");
+	GhostBypass = ini.GetboolValue("Bypass", "Enable_Ghosts_Bypass");
+	AwBypass = ini.GetboolValue("Bypass", "Enable_AW_Bypass");
+	BO2Bypass = ini.GetboolValue("Bypass", "Enable_BO2_Bypass");
+	B03Bypass = ini.GetboolValue("Bypass", "Enable_BO3_Bypass");
 }

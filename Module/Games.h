@@ -3,12 +3,13 @@
 
 class Games {
 public:
+
 	static HANDLE DashboardHandle;
 
 	class TitlePatch {
 	public:
-		static BOOL DashLoaded;
-		static VOID InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuleHandle);
+		static bool DashLoaded;
+		static void InitializeTitlePatching(PLDR_DATA_TABLE_ENTRY ModuhLE);
 	};
 
 	typedef enum TitleIds : DWORD {

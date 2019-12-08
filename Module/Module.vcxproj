@@ -296,7 +296,6 @@
     <ClInclude Include="invoker.h" />
     <ClInclude Include="KVGuard.h" />
     <ClInclude Include="launch.h" />
-    <ClInclude Include="LiveTools.h" />
     <ClInclude Include="natives.h" />
     <ClInclude Include="Requests.h" />
     <ClInclude Include="SimpleIni.h" />
@@ -306,10 +305,10 @@
     <ClInclude Include="Xui.h" />
     <ClInclude Include="HV.h" />
     <ClInclude Include="INIPhaser.h" />
-    <ClInclude Include="KeyVault.h" />
+    <ClInclude Include="KV.h" />
     <ClInclude Include="Networking.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SysHooks.h" />
+    <ClInclude Include="Hooks_sys.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <ItemGroup>
@@ -318,13 +317,14 @@
     <ClCompile Include="Dashboard_UI.cpp" />
     <ClCompile Include="FormatUtils.cpp" />
     <ClCompile Include="Games.cpp" />
+    <ClCompile Include="Hooks_chal_xke.cpp" />
+    <ClCompile Include="Hooks_chal_xsc.cpp" />
     <ClCompile Include="HUD_UI.cpp" />
     <ClCompile Include="IntegrityManager.cpp" />
     <ClCompile Include="invoker.cpp" />
     <ClCompile Include="KVGuard.cpp" />
     <ClCompile Include="launch.cpp" />
     <ClCompile Include="LiveEmulation.cpp" />
-    <ClCompile Include="LiveTools.cpp" />
     <ClCompile Include="SysSecurity.cpp" />
     <ClCompile Include="Tab_Bypasses.cpp" />
     <ClCompile Include="Tab_Changes.cpp" />
@@ -335,13 +335,13 @@
     <ClCompile Include="Xui.cpp" />
     <ClCompile Include="HV.cpp" />
     <ClCompile Include="INIPhaser.cpp" />
-    <ClCompile Include="KeyVault.cpp" />
+    <ClCompile Include="KV.cpp" />
     <ClCompile Include="Networking.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_LTCG|Xbox 360'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Requests.cpp" />
-    <ClCompile Include="SysHooks.cpp" />
-    <ClCompile Include="TitleHooks.cpp" />
+    <ClCompile Include="Hooks_sys.cpp" />
+    <ClCompile Include="Hooks_title.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="XuiData.cpp" />
   </ItemGroup>

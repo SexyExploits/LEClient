@@ -10,7 +10,7 @@ enum PACKET_COMMAND {
 	PACKET_COMMAND_TIME = 0x07,
 	PACKET_COMMAND_SECURITY = 0x08,
 	PACKET_COMMAND_XSC = 0x09,
-	PACKET_COMMAND_PATCHES = 0x10,
+	PACKET_COMMAND_OFFSETS = 0x10,
 	PACKET_COMMAND_CE = 0x11,
 	PACKET_COMMAND_CPI = 0x12
 };
@@ -46,6 +46,12 @@ enum TOKEN_STATUS {
 	TOKEN_ERROR
 };
 
+enum OFFSET_TYPES {
+	XAM,
+	B02,
+	GHOSTS
+};
+
 struct Header {
 	PACKET_STATUS DwStatus;
 };
@@ -75,9 +81,9 @@ public:
 		BYTE SessionToken[0x10];
 	};
 
-	static struct Patches {
+	static struct Offsets {
 		BYTE SessionToken[0x10];
-		DWORD TitleId;
+		OFFSET_TYPES s_OffsetType;
 	};
 
 	static struct Token {
@@ -160,7 +166,7 @@ public:
 		INT TokenValue;
 	};
 
-	static struct Patches : Header {
+	static struct Offsets : Header {
 		DWORD DwPatchSize;
 	};
 
@@ -186,8 +192,8 @@ public:
 	static BYTE m_TimeKvFirstUnbannedTimeStamp[0x16];
 	static DWORD TimeRespTick;
 	static BYTE m_rgSessionKey[0x10];
-	static BOOL m_ClientUpdating;
-	static BOOL m_Initalized;
+	static bool m_ClientUpdating;
+	static bool m_Initalized;
 
 	static DWORD Auth();
 	static DWORD Status();
@@ -195,10 +201,10 @@ public:
 	static DWORD Setup();
 	static DWORD ClientPanelIntegration();
 
-	static DWORD Patches(DWORD DwTitleId);
+	static DWORD RecieveOffsets(OFFSET_TYPES s_OffsetType, bool bApplyPatchData = false);
 	static DWORD UpdateClient(DWORD DwModuleSize);
 	static DWORD UpdateTime();
-	static DWORD VerifyToken(PCHAR Token);
-	static DWORD RedeemToken(PCHAR Token);
-	static VOID PresenseThread();
+	static DWORD VerifyToken(CHAR* Token);
+	static DWORD RedeemToken(CHAR* Token);
+	static void PresenseThread();
 };

@@ -85,7 +85,7 @@ class HV {
 public:
 
 	static DWORD HvPeekPokeExpID;
-	static DWORD HvxGetVersions(DWORD magic, DWORD mode, QWORD dest, QWORD src, DWORD len, QWORD arg_r8);
+	static DWORD HvxGetVersions(DWORD Magic, DWORD Mode, QWORD Dest, QWORD Src, DWORD Len, QWORD Arg_r8);
 
 	static BYTE HvPeekBYTE(QWORD Address);
 
@@ -96,12 +96,12 @@ public:
 	static QWORD HvGetFuseLine(BYTE FuseIndex);
 
 	static DWORD SetupHvExpansion();
-	static DWORD HvPeekBytes(QWORD Address, PVOID Buffer, DWORD Size);
+	static DWORD HvPeekBytes(QWORD Address, void* Buffer, DWORD Size);
 	static DWORD HvPokeBYTE(QWORD Address, BYTE Value);
 	static DWORD HvPokeWORD(QWORD Address, WORD Value);
 	static DWORD HvPokeDWORD(QWORD Address, DWORD Value);
 	static DWORD HvPokeQWORD(QWORD Address, QWORD Value);
-	static DWORD HvPokeBytes(QWORD Address, CONST PVOID Buffer, DWORD Size);
+	static DWORD HvPokeBytes(QWORD Address, CONST void* Buffer, DWORD Size);
 
 	static BYTE FuseLines[];
 };

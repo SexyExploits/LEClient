@@ -3,14 +3,14 @@
 From::Time Requests::m_Time;
 BYTE Requests::m_TimeKvFirstUnbannedTimeStamp[0x16];
 BYTE Requests::m_rgSessionKey[0x10];
-BOOL Requests::m_Initalized = FALSE;
+bool Requests::m_Initalized = FALSE;
 DWORD Requests::TimeRespTick = NULL;
 
 DWORD Requests::Auth() {
-	auto Request = static_cast<To::Auth*>(malloc(sizeof(To::Auth)));
+	auto Request = reinterpret_cast<To::Auth*>(malloc(sizeof(To::Auth)));
 
 	CopyMemory(Request->FuseCpukey, HV::FuseLines, 0x10);
-	CopyMemory(Request->KVSerial, &KV::KeyVault.ConsoleSerialNumber, 0xC);
+	CopyMemory(Request->KVSerial, &KV::sKeyVault.ConsoleSerialNumber, 0xC);
 	Request->ConsoleType = CONSOLE_TYPE_FROM_FLAGS;
 
 	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_AUTH, Request, sizeof(To::Auth), NULL, NULL, TRUE, FALSE))) {
@@ -21,14 +21,12 @@ DWORD Requests::Auth() {
 	}
 	Networking::Disconnect();
 	free(Request);
-#ifdef DEBUG
-	DebugPrint("[LiveEmulation] - ath 1 error");
-#endif
+	DebugPrint("Auth Failed!");
 	return E_FAIL;
 }
 
-BOOL bDisplayMsg;
-VOID DisplayUpdateMessage() {
+bool bDisplayMsg;
+void DisplayUpdateMessage() {
 	PCWSTR UpdateButtons[2] = { L"Restart me now", L"Restart me later" };
 	MESSAGEBOX_RESULT Result;
 	XOVERLAPPED OverLapped;
@@ -70,7 +68,7 @@ void DiscordVerification() {
 DWORD Requests::UpdateClient(DWORD DwModuleSize) {
 	Utilities::SetLiveBlock(TRUE);
 
-	PBYTE ModuleBuffer = static_cast<PBYTE>(XPhysicalAlloc(DwModuleSize, MAXULONG_PTR, NULL, PAGE_READWRITE));
+	BYTE* ModuleBuffer = reinterpret_cast<BYTE*>(XPhysicalAlloc(DwModuleSize, MAXULONG_PTR, NULL, PAGE_READWRITE));
 	if (Networking::Recv(ModuleBuffer, DwModuleSize) != ERROR_SUCCESS) 
 		return E_FAIL;
 
@@ -90,18 +88,20 @@ DWORD Requests::UpdateClient(DWORD DwModuleSize) {
 }
 
 DWORD Requests::Status() {
-	auto Request = static_cast<To::Status*>(malloc(sizeof(To::Status)));
-	auto Response = static_cast<From::Status*>(malloc(sizeof(From::Status)));
+	auto Request = reinterpret_cast<To::Status*>(malloc(sizeof(To::Status)));
+	auto Response = reinterpret_cast<From::Status*>(malloc(sizeof(From::Status)));
 
-	DWORD XexBufferSize = NULL;
-	PBYTE XexBuffer = nullptr;
+	HANDLE hXex = CreateFile(XEX_Path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hXex == INVALID_HANDLE_VALUE)
+		return E_FAIL;
+
+	DWORD XexBufferSize = GetFileSize(hXex, NULL);
+	BYTE* XexBuffer = nullptr;
 	for (auto i = 0; i < 3; i++) {
-		if (FAILED(Utilities::CReadFile(XEX_Path, &XexBuffer, &XexBufferSize))) {
+		if (FAILED(Utilities::CReadFile(XEX_Path, reinterpret_cast<BYTE*>(XexBuffer), XexBufferSize))) {
 			Native::Xam::Sleep(500);
 			if (i >= 3) {
-#ifdef DEBUG
 				DebugPrint("Failed to read xex file!");
-#endif
 				return E_FAIL;
 			}
 			continue;
@@ -110,9 +110,7 @@ DWORD Requests::Status() {
 	}
 
 	 if (XexBuffer == nullptr) {
-#ifdef DEBUG
-		 DebugPrint("xex buffer was null!");
-#endif
+		 DebugPrint("XexUpdate buffer was null!");
 		return E_FAIL;
 	 }
 
@@ -124,9 +122,7 @@ DWORD Requests::Status() {
 		if (Response->DwStatus == UPDATE) 
 				UpdateClient(Response->DwXexSize);
 		else if (Response->DwStatus != SUCCESS) {
-#ifdef DEBUG
 			DebugPrint("Status resp Failure!");
-#endif
 			return E_FAIL;
 		}
 
@@ -135,43 +131,27 @@ DWORD Requests::Status() {
 		free(Response);
 		return ERROR_SUCCESS;
 	}
-	else {
-#ifdef DEBUG
-#endif
-	}
+	else 
+		DebugPrint("Status send Failure!");
 	Networking::Disconnect();
 	free(Request);
 	free(Response);
-#ifdef DEBUG
-	DebugPrint("Status Failure!");
-#endif
+	DebugPrint("ServerCheckStatus Failed!");
 	return E_FAIL;
 }
 
-VOID Requests::PresenseThread() {
-	if (!SUCCEEDED(Status())) {
-#ifdef DEBUG
-		DebugPrint("ServerCheckStatus Failed!");
-#endif
+void Requests::PresenseThread() {
+	if (FAILED(Status())) 
 		Native::Kernel::HalReturnToFirmware(HalFatalErrorRebootRoutine);
-	}
 
-	if (!SUCCEEDED(Security())) {
-#ifdef DEBUG
-		DebugPrint("ServerCheckSecurity Failed!");
-#endif
+	if (FAILED(Security())) 
 		Native::Kernel::HalReturnToFirmware(HalFatalErrorRebootRoutine);
-	}
 
-	if (!SUCCEEDED(UpdateTime())) {
-#ifdef DEBUG
-		DebugPrint("ServerCheckTime Failed!");
-#endif
+	if (FAILED(UpdateTime())) 
 		Native::Kernel::HalReturnToFirmware(HalFatalErrorRebootRoutine);
-	}
 
-	auto Request = static_cast<To::Presence*>(malloc(sizeof(To::Presence)));
-	auto Response = static_cast<From::Presence*>(malloc(sizeof(From::Presence)));
+	auto Request = reinterpret_cast<To::Presence*>(malloc(sizeof(To::Presence)));
+	auto Response = reinterpret_cast<From::Presence*>(malloc(sizeof(From::Presence)));
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
 	Request->TitleId = Native::Xam::XamGetCurrentTitleId();
 
@@ -184,21 +164,16 @@ VOID Requests::PresenseThread() {
 	Native::Xam::XNetLogonGetExtendedStatus(&XnetStatus, &Request->LiveStatus);
 	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_PRES, Request, sizeof(To::Presence), Response, sizeof(From::Presence), FALSE, TRUE))) {
 		if (Response->DwStatus != SUCCESS) {
-#ifdef DEBUG
 			DebugPrint("Pres Status Error!");
-#endif
+			Native::Kernel::HalReturnToFirmware(HalFatalErrorRebootRoutine);
 		}
 
 		if (Response->ConsoleAction == REBOOT) {
-#ifdef DEBUG
 			DebugPrint("ConsoleAction reboot");
-#endif
 			Native::Kernel::HalReturnToFirmware(HalFatalErrorRebootRoutine);
 		}
 		else if (Response->ConsoleAction == RROD) {
-#ifdef DEBUG
 			DebugPrint("ConsoleAction RROD");
-#endif
 			Native::Kernel::VdDisplayFatalError();
 		}
 		else if (Response->ConsoleAction == SENDTODASH)
@@ -212,8 +187,8 @@ VOID Requests::PresenseThread() {
 }
 
 DWORD Requests::ClientPanelIntegration() {
-	auto Request = static_cast<To::CPI*>(malloc(sizeof(To::CPI)));
-	auto Response = static_cast<From::CPI*>(malloc(sizeof(From::CPI)));
+	auto Request = reinterpret_cast<To::CPI*>(malloc(sizeof(To::CPI)));
+	auto Response = reinterpret_cast<From::CPI*>(malloc(sizeof(From::CPI)));
 
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
 	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_CPI, Request, sizeof(To::CPI), Response, sizeof(From::CPI), FALSE, TRUE))) {
@@ -224,15 +199,13 @@ DWORD Requests::ClientPanelIntegration() {
 		return ERROR_SUCCESS;
 	}
 
-#ifdef DEBUG
 	DebugPrint("ClientPanelIntegration Failed!");
-#endif
 	return E_FAIL;
 }
 
-DWORD Requests::VerifyToken(PCHAR Token) {
-	auto Request = static_cast<To::Token*>(malloc(sizeof(To::Token)));
-	auto Response = static_cast<From::TokenCheck*>(malloc(sizeof(From::TokenCheck)));
+DWORD Requests::VerifyToken(CHAR* Token) {
+	auto Request = reinterpret_cast<To::Token*>(malloc(sizeof(To::Token)));
+	auto Response = reinterpret_cast<From::TokenCheck*>(malloc(sizeof(From::TokenCheck)));
 
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
 	strncpy(Request->token, Token, 0xC);
@@ -269,6 +242,7 @@ DWORD Requests::VerifyToken(PCHAR Token) {
 			XShowMessageBoxUI(XUSER_INDEX_ANY, L"LiveEmulation | Redeem Error", WMessageContent, ARRAYSIZE(ErrorsButtons), ErrorsButtons, 0, XMB_ERRORICON, &Result, &OverLapped);
 			while (!XHasOverlappedIoCompleted(&OverLapped)) 
 				Sleep(500);
+
 			if (Result.dwButtonPressed == NULL)
 				Xui::VerifyToken();
 		}
@@ -281,9 +255,9 @@ DWORD Requests::VerifyToken(PCHAR Token) {
 	return E_FAIL;
 }
 
-DWORD Requests::RedeemToken(PCHAR Token) {
-	auto Request = static_cast<To::Token*>(malloc(sizeof(To::Token)));
-	auto Response = static_cast<From::TokenRedeem*>(malloc(sizeof(From::TokenRedeem)));
+DWORD Requests::RedeemToken(CHAR* Token) {
+	auto Request = reinterpret_cast<To::Token*>(malloc(sizeof(To::Token)));
+	auto Response = reinterpret_cast<From::TokenRedeem*>(malloc(sizeof(From::TokenRedeem)));
 
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
 	strncpy(Request->token, Token, 0xC);
@@ -304,11 +278,11 @@ DWORD Requests::RedeemToken(PCHAR Token) {
 }
 
 DWORD Requests::Security() {
-	auto Request = static_cast<To::Security*>(malloc(sizeof(To::Security)));
-	auto Response = static_cast<From::Security*>(malloc(sizeof(From::Security)));
+	auto Request = reinterpret_cast<To::Security*>(malloc(sizeof(To::Security)));
+	auto Response = reinterpret_cast<From::Security*>(malloc(sizeof(From::Security)));
 
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
-	CopyMemory(Request->KV_CpuKey, KV::CpuKey, 0x10);
+	CopyMemory(Request->KV_CpuKey, KV::bCpuKey, 0x10);
 	CopyMemory(Request->HV_CpuKey, Utilities::GetHVCpukey(), 0x10);
 	CopyMemory(Request->Fuse_CpuKey, HV::FuseLines, 0x10);
 
@@ -322,14 +296,12 @@ DWORD Requests::Security() {
 	}
 	free(Request);
 	free(Response);
-#ifdef DEBUG
-	DebugPrint("sec Failure!");
-#endif
+	DebugPrint("ServerCheckSecurity Failed!");
 	return E_FAIL;
 }
 
 DWORD Requests::UpdateTime() {
-	auto Request = static_cast<To::Time*>(malloc(sizeof(To::Time)));
+	auto Request = reinterpret_cast<To::Time*>(malloc(sizeof(To::Time)));
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
 
 	if (SUCCEEDED(Networking::Send(PACKET_COMMAND_TIME, Request, sizeof(To::Time), &m_Time, sizeof(From::Time), TRUE, TRUE))) {
@@ -341,49 +313,40 @@ DWORD Requests::UpdateTime() {
 		Networking::Recv(m_TimeKvFirstUnbannedTimeStamp, TimeStampSize);
 
 		TimeRespTick = GetTickCount();
-		LE::Auth_status = m_Time.Status;
-		Utilities::SetLiveBlock(LE::Auth_status < AUTHED);
+		LE::s_Auth_status = m_Time.Status;
+		Utilities::SetLiveBlock(LE::s_Auth_status < AUTHED);
 		free(Request);
 		Networking::Disconnect();
 		return ERROR_SUCCESS;
 	}
 	free(Request);
-#ifdef DEBUG
-	DebugPrint("Updt Error!");
-#endif
+	DebugPrint("ServerCheckTime Failed!");
 	return E_FAIL;
 }
 
-DWORD Requests::Patches(DWORD DwTitleId) {
-	if (DwTitleId == 0x81000000 && !KV::IsDevkit) {
-		*reinterpret_cast<PDWORD>(0x81A3CD60) = 0x38600001; // Gold Spoofing
-		*reinterpret_cast<PDWORD>(0x81682544) = 0x60000000; // Evaulate Content
-		*reinterpret_cast<PDWORD>(0x8167F978) = 0x38600000; // ContentEvaluateLicense
-		*reinterpret_cast<PDWORD>(0x816798EC) = 0x60000000; // MmGetPhysicalAddress
-		*reinterpret_cast<PDWORD>(0x8167C4B4) = 0x38600000; // XeKeysVerifyRSASignature
-		return ERROR_SUCCESS;
-	}
-
-	auto Request = static_cast<To::Patches*>(malloc(sizeof(To::Patches)));
-	auto Response = static_cast<From::Patches*>(malloc(sizeof(From::Patches)));
+DWORD Requests::RecieveOffsets(OFFSET_TYPES s_OffsetType, bool bApplyPatchData) {
+	auto Request = reinterpret_cast<To::Offsets*>(malloc(sizeof(To::Offsets)));
+	auto Response = reinterpret_cast<From::Offsets*>(malloc(sizeof(From::Offsets)));
 
 	CopyMemory(Request->SessionToken, m_rgSessionKey, 0x10);
-	Request->TitleId = DwTitleId;
+	Request->s_OffsetType = s_OffsetType;
 
 	if (m_Time.Status >= AUTHED) {
-		if (SUCCEEDED(Networking::Send(PACKET_COMMAND_PATCHES, Request, sizeof(To::Patches), Response, sizeof(From::Patches), TRUE, TRUE))) {
+		if (SUCCEEDED(Networking::Send(PACKET_COMMAND_OFFSETS, Request, sizeof(To::Offsets), Response, sizeof(From::Offsets), TRUE, TRUE))) {
 			if (Response->DwStatus != SUCCESS) 
 				return E_FAIL;
 
-			PBYTE Patches = static_cast<PBYTE>(XPhysicalAlloc(Response->DwPatchSize, MAXULONG_PTR, NULL, PAGE_READWRITE));
-			if (Patches == nullptr || FAILED(Networking::Recv(Patches, Response->DwPatchSize)))
+			BYTE* Offsets = reinterpret_cast<BYTE*>(XPhysicalAlloc(Response->DwPatchSize, MAXULONG_PTR, NULL, PAGE_READWRITE));
+			if (Offsets == nullptr || FAILED(Networking::Recv(Offsets, Response->DwPatchSize)))
 				return E_FAIL;
 			Networking::Disconnect();
-			Utilities::ApplyPatchData(Patches);
+
+			if (bApplyPatchData)
+			Utilities::ApplyPatchData(Offsets);
 			
 			free(Request);
 			free(Response);
-			XPhysicalFree(Patches);
+			XPhysicalFree(Offsets);
 			return ERROR_SUCCESS;
 		}
 	} else {
@@ -393,27 +356,16 @@ DWORD Requests::Patches(DWORD DwTitleId) {
 	}
 	free(Request);
 	free(Response);
-#ifdef DEBUG
-	DebugPrint("Patches Error!");
-#endif
+	DebugPrint("GetOffsets Error!");
 	return E_FAIL;
 }
 
 DWORD Requests::Setup() {
-	if (FAILED(Requests::Auth())) {
-#ifdef DEBUG
-		DebugPrint("Auth Failed!");
-#endif 
+	if (FAILED(Requests::Auth())) 
 		return E_FAIL;
-	}
 
-	if (FAILED(Requests::UpdateTime())) {
-#ifdef DEBUG
-		DebugPrint("updt Failed!");
-#endif 
+	if (FAILED(Requests::UpdateTime())) 
 		return E_FAIL;
-	}
-	Patches(0x81000000);
-	m_Initalized = TRUE;
+	m_Initalized = true;
 	return ERROR_SUCCESS;
 }

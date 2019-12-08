@@ -20,7 +20,7 @@ typedef enum {
 
 typedef enum {
 		// DWORD containing a value between 0 and 1
-		DL_OPT_TYPE_BOOL = 0,
+		DL_OPT_TYPE_bool = 0,
 		// WORD containing a value between 0 and 0xFFFF
 		DL_OPT_TYPE_WORD,
 		DL_OPT_TYPE_WORDREGION, // 0-0x7FFF
@@ -59,7 +59,7 @@ typedef struct {
 	DWORD options; // for external apps that want to know what dash launch has set/parsed
 	DWORD DebugRoutine; // for external apps that want to recursively hook and call the first/last chance exception trap on their own
 	DWORD DebugStepPatch; // address to path single step exception to not be skipped (write 0x60000000/nop to this address to enable it)
-	PBYTE tempData; // DL will monitor temps, a copy of the smc temp data is placed here, 0x10 bytes in len
+	BYTE* tempData; // DL will monitor temps, a copy of the smc temp data is placed here, 0x10 bytes in len
 	DWORD iniPathSel; // the path corresponding to this number can be gotten via dlaunchGetDriveList, 0xFF is none, 0xFE is forced
 } ldata, *pldata;
 
@@ -79,18 +79,18 @@ typedef struct {
 } PLUGIN_LOAD_PATH, *PPLUGIN_LOAD_PATH;
 
 typedef int(*DLAUNCHGETNUMOPTS)(int* totalOpts);
-typedef int(*DLAUNCHGETOPTINFO)(int opt, PDWORD optType, PCHAR outStr, PDWORD currVal, PDWORD defValue, PDWORD optCategory);
-typedef BOOL(*DLAUNCHGETOPTVAL)(int opt, PDWORD val);
-typedef BOOL(*DLAUNCHSETOPTVAL)(int opt, PDWORD val);
-typedef BOOL(*DLAUNCHGETOPTVALBYNAME)(char* optName, PDWORD val);
-typedef BOOL(*DLAUNCHSETOPTVALBYNAME)(char* optName, PDWORD val);
-typedef VOID(*DLAUNCHFORCEINILOAD)(PCHAR path);
+typedef int(*DLAUNCHGETOPTINFO)(int opt, DWORD* optType, CHAR* outStr, DWORD* currVal, DWORD* defValue, DWORD* optCategory);
+typedef bool(*DLAUNCHGETOPTVAL)(int opt, DWORD* val);
+typedef bool(*DLAUNCHSETOPTVAL)(int opt, DWORD* val);
+typedef bool(*DLAUNCHGETOPTVALBYNAME)(char* optName, DWORD* val);
+typedef bool(*DLAUNCHSETOPTVALBYNAME)(char* optName, DWORD* val);
+typedef void(*DLAUNCHFORCEINILOAD)(CHAR* path);
 typedef DWORD(*DLAUNCHSTARTSYSMODULE)(char* modPath);
-typedef VOID(*DLAUNCHSHUTDOWN)(VOID);
-typedef DWORD(*DLAUNCHGETDRIVELIST)(DWORD dev, PCHAR devDest, PCHAR mountName, PCHAR friendlyName);
-typedef DWORD(*DLAUNCHGETDRIVEINFO)(PDWORD maxIniDrives, PDWORD maxDevLen);
+typedef void(*DLAUNCHSHUTDOWN)(void);
+typedef DWORD(*DLAUNCHGETDRIVELIST)(DWORD dev, CHAR* devDest, CHAR* mountName, CHAR* friendlyName);
+typedef DWORD(*DLAUNCHGETDRIVEINFO)(DWORD* maxIniDrives, DWORD* maxDevLen);
 
 class Launch {
 public:
-	static DWORD SetupFileSystem();
+	static DWORD MountFileSystem();
 };

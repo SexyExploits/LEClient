@@ -16,7 +16,7 @@ public:
 		item.m_size = size;
 
 		for (int i = 0; i < size; i++) {
-			item.m_bytes.push_back(*(PDWORD)((DWORD)function + i));
+			item.m_bytes.push_back(*(DWORD*)((DWORD)function + i));
 		}
 
 		m_items.push_back(item);

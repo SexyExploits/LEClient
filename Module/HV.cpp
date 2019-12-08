@@ -5,7 +5,7 @@
 DWORD HV::HvPeekPokeExpID = 0xD50F5D5A; // real value : 0x48565050
 BYTE HV::FuseLines[0x10];
 
-DWORD __declspec(naked) HV::HvxGetVersions(DWORD magic, DWORD mode, QWORD dest, QWORD src, DWORD len, QWORD arg_r8) {
+DWORD __declspec(naked) HV::HvxGetVersions(DWORD Magic, DWORD Mode, QWORD Dest, QWORD Src, DWORD Len, QWORD Arg_r8) {
 	__asm {
 		li      r0, 0 // HvxGetVersion
 		sc
@@ -53,34 +53,40 @@ DWORD HV::HvPeekDWORD(QWORD Address) { return static_cast<DWORD>(HvxExpansionCal
 
 QWORD HV::HvPeekQWORD(QWORD Address) { return HvxExpansionCall(HvPeekPokeExpID, PEEK_QWORD, Address); }
 
-DWORD HV::HvPeekBytes(QWORD Address, PVOID Buffer, DWORD Size) {
-	PVOID Data = XPhysicalAlloc(Size, MAXULONG_PTR, NULL, PAGE_READWRITE);
-	ZeroMemory(Data, Size);
+DWORD HV::HvPeekBytes(QWORD Address, void* Buffer, DWORD Size) {
+	void* data = XPhysicalAlloc(Size, MAXULONG_PTR, NULL, PAGE_READWRITE);
+	ZeroMemory(data, Size);
 
-	DWORD Result = static_cast<DWORD>(HvxExpansionCall(HvPeekPokeExpID, PEEK_BYTES, Address,reinterpret_cast<QWORD>(Native::Kernel::MmGetPhysicalAddress(Data)), Size));
-	if (SUCCEEDED(Result))
-		CopyMemory(Buffer, Data, Size);
+	DWORD result = static_cast<DWORD>(HvxExpansionCall(HvPeekPokeExpID, PEEK_BYTES, Address, (QWORD)MmGetPhysicalAddress(data), Size));
 
-	XPhysicalFree(Data);
-	return Result;
+	if (SUCCEEDED(result))
+		memcpy(Buffer, data, Size);
+
+	XPhysicalFree(data);
+	return result;
 }
 
-DWORD HV::HvPokeBYTE(QWORD Address, BYTE Value) {	return static_cast<HRESULT>(HvxExpansionCall(HvPeekPokeExpID, POKE_BYTE, Address, Value)); }
+DWORD HV::HvPokeBYTE(QWORD Address, BYTE Value) { return static_cast<DWORD>(HvxExpansionCall(HvPeekPokeExpID, POKE_BYTE, Address, Value)); }
 
-DWORD HV::HvPokeWORD(QWORD Address, WORD Value) { return static_cast<HRESULT>(HvxExpansionCall(HvPeekPokeExpID, POKE_WORD, Address, Value)); }
+DWORD HV::HvPokeWORD(QWORD Address, WORD Value) { return static_cast<DWORD>(HvxExpansionCall(HvPeekPokeExpID, POKE_WORD, Address, Value)); }
 
-DWORD HV::HvPokeDWORD(QWORD Address, DWORD Value) { return static_cast<HRESULT>(HvxExpansionCall(HvPeekPokeExpID, POKE_DWORD, Address, Value)); }
+DWORD HV::HvPokeDWORD(QWORD Address, DWORD Value) { return static_cast<DWORD>(HvxExpansionCall(HvPeekPokeExpID, POKE_DWORD, Address, Value)); }
 
-DWORD HV::HvPokeQWORD(QWORD Address, QWORD Value) { return static_cast<HRESULT>(HvxExpansionCall(HvPeekPokeExpID, POKE_QWORD, Address, Value)); }
+DWORD HV::HvPokeQWORD(QWORD Address, QWORD Value) { return HvxExpansionCall(HvPeekPokeExpID, POKE_QWORD, Address, Value); }
 
-DWORD HV::HvPokeBytes(QWORD Address, CONST PVOID Buffer, DWORD Size) {
-	PVOID Data = XPhysicalAlloc(Size, MAXULONG_PTR, NULL, PAGE_READWRITE);
-	memcpy(Data, Buffer, Size);
+DWORD HV::HvPokeBytes(QWORD Address, CONST void* Buffer, DWORD Size) {
+	void* data = XPhysicalAlloc(Size, MAXULONG_PTR, NULL, PAGE_READWRITE);
+	memcpy(data, Buffer, Size);
 
-	DWORD Result = static_cast<HRESULT>(HvxExpansionCall(HvPeekPokeExpID, POKE_BYTES, Address,reinterpret_cast<QWORD>(Native::Kernel::MmGetPhysicalAddress(Data)), Size));
-	XPhysicalFree(Data);
-	return Result;
+	DWORD result = static_cast<DWORD>(HvxExpansionCall(HvPeekPokeExpID, POKE_BYTES, Address, (QWORD)MmGetPhysicalAddress(data), Size));
+
+	XPhysicalFree(data);
+	return result;
 }
 
-QWORD HV::HvGetFuseLine(BYTE FuseIndex) { return (FuseIndex > 11) ? NULL : HvPeekQWORD(0x8000020000020000 + (FuseIndex * 0x200)); }
+QWORD HV::HvGetFuseLine(BYTE fuseIndex) { 
+	if (fuseIndex > 11) 
+		return NULL; 
+	return HvPeekQWORD(0x8000020000020000 + (fuseIndex * 0x200)); 
+}
 

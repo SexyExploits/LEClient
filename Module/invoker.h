@@ -209,7 +209,7 @@ public:
 	static void test();
 	static DWORD RegisterPreAuthNatives();
 	static DWORD RegisterPostCryptoNatives();
-	static VOID RegisterNative(DWORD NativeAddress, NativeHandler Handler);
+	static void RegisterNative(DWORD NativeAddress, NativeHandler Handler);
 	static NativeHandler GetNativeHandler(DWORD NativeAddress);
 
 	static int* Call(DWORD NativeAddress, NativeManager* Context) {

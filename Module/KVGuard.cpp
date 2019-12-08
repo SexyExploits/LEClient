@@ -3,7 +3,7 @@
 //std::vector<const char*> KVProtection::WhiteListedModules;
 typedef NTSTATUS(NTAPI* tNtCreateFile)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PIO_STATUS_BLOCK, PLARGE_INTEGER, DWORD, DWORD, DWORD, DWORD);
 tNtCreateFile NtCreateFile_Original;
-NTSTATUS NTAPI NtCreateFile_Hook(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, PLARGE_INTEGER AllocationSize, DWORD FileAttributes, DWORD ShareAccess, DWORD CreateDisposition, DWORD CreateOptions) {
+NTSTATUS NTAPI NtCreateFile_Hook(PHANDLE FihLE, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, PLARGE_INTEGER AllocationSize, DWORD FileAttributes, DWORD ShareAccess, DWORD CreateDisposition, DWORD CreateOptions) {
 	DWORD dwLink;
 	__asm {
 		mflr r31
@@ -19,12 +19,12 @@ NTSTATUS NTAPI NtCreateFile_Hook(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, 
 		}
 	}
 
-	return NtCreateFile_Original(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions);
+	return NtCreateFile_Original(FihLE, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions);
 }
 
 typedef NTSTATUS(NTAPI* tNtOpenFile)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PIO_STATUS_BLOCK, DWORD, DWORD);
 tNtOpenFile NtOpenFile_Original;
-NTSTATUS NtOpenFile_Hook(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, DWORD ShareAccess, DWORD OpenOptions) {
+NTSTATUS NtOpenFile_Hook(PHANDLE FihLE, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes, PIO_STATUS_BLOCK IoStatusBlock, DWORD ShareAccess, DWORD OpenOptions) {
 	DWORD dwLink;
 	__asm {
 		mflr r31
@@ -39,8 +39,7 @@ NTSTATUS NtOpenFile_Hook(PHANDLE FileHandle, ACCESS_MASK DesiredAccess, POBJECT_
 			return ERROR_ACCESS_DENIED;
 		}
 	}
-
-	return NtOpenFile_Original(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
+	return NtOpenFile_Original(FihLE, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
 }
 
 

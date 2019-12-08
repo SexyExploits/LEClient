@@ -13,21 +13,21 @@
 class Security {
 public:
 
-	static BOOL IntegrityFailed;
+	static bool IntegrityFailed;
 	static vector<pair<DWORD, DWORD>> m_AutomaticWriteBackList;
-	static vector<pair<DWORD, DWORD>> LEhandleReadProtection;
-	static vector<pair<DWORD, DWORD>> LEhandleReadProtectionWhitelist;
+	static vector<pair<DWORD, DWORD>> hLEReadProtection;
+	static vector<pair<DWORD, DWORD>> hLEReadProtectionWhitelist;
 
-	static BOOL XBDMSanityCheck();
+	static bool XBDMSanityCheck();
 
-	static VOID SetupIntegrity();
-	static VOID IntegrityThread();
-	static VOID DebuggerDetectionThread();
-	static VOID UnlinkFromKEB();
-	static VOID ProtectMyMemorySpace();
+	static void SetupIntegrity();
+	static void IntegrityThread();
+	static void DebuggerDetectionThread();
+	static void UnlinkFromKEB();
+	static void ProtectMyMemorySpace();
 
-	static BOOL MmDbgReadCheckHook(DWORD dwAddress);
-	static VOID AddRegionToWhitelist(DWORD start, DWORD length);
+	static bool MmDbgReadCheckHook(DWORD dwAddress);
+	static void AddRegionToWhitelist(DWORD start, DWORD length);
 };
 
 struct XbdmCommandTable {
@@ -47,9 +47,9 @@ struct XbdmCommandTable {
 class Xbdm {
 public:
 	static void InitializeCommands() {
-		if (LE::MyModulehandleSize == NULL) {
+		if (LE::dwMyModuleSize == NULL) {
 #ifdef  DEBUG
-			DebugPrint("xbdm LEhandleSize was null!");
+			DebugPrint("xbdm hLESize was null!");
 #endif
 			Native::Kernel::VdDisplayFatalError();
 		}
@@ -60,7 +60,7 @@ public:
 			DWORD ptr = m_tableAddress + (i * 12);
 			XbdmCommandTable entry;
 
-			DWORD strAddress = *reinterpret_cast<PDWORD>(ptr);
+			DWORD strAddress = *reinterpret_cast<DWORD*>(ptr);
 			entry.m_name = (char*)strAddress;
 			entry.m_type = *(int*)(ptr + 4);
 			entry.m_isHooked = false;
@@ -157,7 +157,7 @@ public:
 		DWORD address = stoul(addrValue);
 
 		// if the start is within our module, we don't care about the length.
-		if (address >= BASEADDY && address <= (BASEADDY + LE::MyModulehandleSize)) {
+		if (address >= BASEADDY && address <= (BASEADDY + LE::dwMyModuleSize)) {
 			return 0x82DA000E; // access denied - gives error box that says "Object reference not set to an instance of an object."
 		}
 
@@ -190,7 +190,7 @@ public:
 		DWORD address = stoul(addrValue);
 
 		// if the start is within our module, we don't care about the length.
-		if (address >= BASEADDY && address <= (BASEADDY + LE::MyModulehandleSize)) {
+		if (address >= BASEADDY && address <= (BASEADDY + LE::dwMyModuleSize)) {
 			return 0x82DA000E; // access denied - gives error box that says "Object reference not set to an instance of an object."
 		}
 
@@ -225,7 +225,7 @@ public:
 		DWORD address = strtoul(addrValue.c_str(), &_, 0);
 
 		// if the start is within our module, we don't care about the length.
-		if (address >= BASEADDY && address <= (BASEADDY + LE::MyModulehandleSize)) {
+		if (address >= BASEADDY && address <= (BASEADDY + LE::dwMyModuleSize)) {
 			return 0x82DA000E; // access denied - gives error box that says "Object reference not set to an instance of an object."
 		}
 
@@ -294,16 +294,16 @@ public:
 		switch (m_severity) {
 		case OBF_DEFAULT: {
 			for (auto i = 0; i < m_size; i++) { // miss BLR
-				*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) = *reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) ^ 0x43; // for default we'll just encrypt the function
+				*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) = *reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) ^ 0x43; // for default we'll just encrypt the function
 			}
 			break;
 		}
 		case OBF_SUPER: {
 			// the super severity copies the bytes locally, then nulls the func. Then when it's called, they get put back, then called, then repeat.
 			for (auto i = 0; i < m_size; i++) {
-				m_functionBytes.push_back(*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i));
+				m_functionBytes.push_back(*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i));
 				m_functionBytes.at(i) = m_functionBytes.at(i) ^ 0x45; // static xor for now
-				*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) = 0x0; // null
+				*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) = 0x0; // null
 			}
 			break;
 		 }
@@ -326,7 +326,7 @@ public:
 		case OBF_SUPER: {
 			for (auto i = 0; i < m_size; i++) {
 				m_functionBytes.at(i) = m_functionBytes.at(i) ^ 0x45; // de-xor
-				*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) = m_functionBytes.at(i); // put back to function
+				*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) = m_functionBytes.at(i); // put back to function
 				m_functionBytes.at(i) = m_functionBytes.at(i) ^ 0x45; // soon as it's written, xor it again
 			}
 			break;
@@ -338,13 +338,13 @@ public:
 		switch (m_severity) {
 		case OBF_DEFAULT: {
 			for (auto i = 0; i < m_size; i++) {
-				*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) = *reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) ^ 0x43; // re-xor
+				*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) = *reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) ^ 0x43; // re-xor
 			}
 			break;
 		}
 		case OBF_SUPER: {
 			for (auto i = 0; i < m_size; i++) {
-				*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) = 0x0; // execution is complete; null again
+				*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) = 0x0; // execution is complete; null again
 			}
 			break;
 		 }
@@ -353,7 +353,7 @@ public:
 		if (m_deleteNextCall) {
 			m_deleteNextCall = false;
 			for (auto i = 0; i < m_size; i++) {
-				*reinterpret_cast<PBYTE>(reinterpret_cast<DWORD>(m_function) + i) = 0x0;
+				*reinterpret_cast<BYTE*>(reinterpret_cast<DWORD>(m_function) + i) = 0x0;
 			}
 
 			m_functionBytes.clear();

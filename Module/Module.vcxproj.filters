@@ -1,23 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="KeyVault.cpp">
-      <Filter>Source Files\Utillities</Filter>
-    </ClCompile>
     <ClCompile Include="Xui.cpp">
       <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="HV.cpp">
-      <Filter>Source Files\Utillities</Filter>
     </ClCompile>
     <ClCompile Include="Games.cpp">
       <Filter>Source Files\Games</Filter>
     </ClCompile>
     <ClCompile Include="INIPhaser.cpp">
       <Filter>Source Files\Utillities</Filter>
-    </ClCompile>
-    <ClCompile Include="SysHooks.cpp">
-      <Filter>Source Files\Hooks</Filter>
     </ClCompile>
     <ClCompile Include="Utilities.cpp">
       <Filter>Source Files\Utillities</Filter>
@@ -28,17 +19,8 @@
     <ClCompile Include="FormatUtils.cpp">
       <Filter>Source Files\Utillities</Filter>
     </ClCompile>
-    <ClCompile Include="TitleHooks.cpp">
-      <Filter>Source Files\Hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="LiveTools.cpp">
-      <Filter>Source Files\Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="Requests.cpp">
       <Filter>Source Files\Networking</Filter>
-    </ClCompile>
-    <ClCompile Include="LiveEmulation.cpp">
-      <Filter>Source Files\Other</Filter>
     </ClCompile>
     <ClCompile Include="invoker.cpp">
       <Filter>Source Files\Security</Filter>
@@ -64,46 +46,58 @@
     <ClCompile Include="KVGuard.cpp">
       <Filter>Source Files\Security</Filter>
     </ClCompile>
-    <ClCompile Include="HUD_UI.cpp">
-      <Filter>Source Files\UI\HUD</Filter>
+    <ClCompile Include="Hooks_sys.cpp">
+      <Filter>Source Files\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="Dashboard_UI.cpp">
-      <Filter>Source Files\UI\Dashboard</Filter>
+    <ClCompile Include="Hooks_chal_xke.cpp">
+      <Filter>Source Files\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="Dashboard_Defs.cpp">
-      <Filter>Source Files\UI\Dashboard</Filter>
+    <ClCompile Include="Hooks_chal_xsc.cpp">
+      <Filter>Source Files\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="Tab_LiveEmulation.cpp">
-      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    <ClCompile Include="Hooks_title.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="HV.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="KV.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="LiveEmulation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tab_UI.cpp">
-      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Tab_Bypasses.cpp">
-      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+    <ClCompile Include="Tab_LiveEmulation.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="Tab_Cheats.cpp">
-      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="Tab_Changes.cpp">
-      <Filter>Source Files\UI\HUD\LE Menu Tabs</Filter>
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Tab_Bypasses.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Dashboard_UI.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Dashboard_Defs.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="HUD_UI.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="KeyVault.h">
-      <Filter>Header Files\Utillities</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files\Other</Filter>
-    </ClInclude>
     <ClInclude Include="INIPhaser.h">
       <Filter>Header Files\Utillities\INI</Filter>
     </ClInclude>
     <ClInclude Include="Xui.h">
       <Filter>Header Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="HV.h">
-      <Filter>Header Files\Utillities</Filter>
     </ClInclude>
     <ClInclude Include="Games.h">
       <Filter>Header Files\Games</Filter>
@@ -111,26 +105,14 @@
     <ClInclude Include="SimpleIni.h">
       <Filter>Header Files\Utillities\INI</Filter>
     </ClInclude>
-    <ClInclude Include="SysHooks.h">
-      <Filter>Header Files\Hooks</Filter>
-    </ClInclude>
     <ClInclude Include="Utilities.h">
       <Filter>Header Files\Utillities</Filter>
     </ClInclude>
     <ClInclude Include="launch.h">
       <Filter>Header Files\Utillities</Filter>
     </ClInclude>
-    <ClInclude Include="Config.h">
-      <Filter>Header Files\Other</Filter>
-    </ClInclude>
     <ClInclude Include="FormatUtils.h">
       <Filter>Header Files\Utillities</Filter>
-    </ClInclude>
-    <ClInclude Include="LE.h">
-      <Filter>Header Files\Other</Filter>
-    </ClInclude>
-    <ClInclude Include="LiveTools.h">
-      <Filter>Header Files\Hooks</Filter>
     </ClInclude>
     <ClInclude Include="Requests.h">
       <Filter>Header Files\Networking</Filter>
@@ -159,14 +141,32 @@
     <ClInclude Include="KVGuard.h">
       <Filter>Header Files\Security</Filter>
     </ClInclude>
-    <ClInclude Include="HUD_UI.h">
-      <Filter>Header Files\UI\HUD</Filter>
+    <ClInclude Include="Hooks_sys.h">
+      <Filter>Header Files\Hooks</Filter>
     </ClInclude>
-    <ClInclude Include="Dashboard_UI.h">
-      <Filter>Header Files\UI\Dashboard</Filter>
+    <ClInclude Include="HV.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="KV.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="LE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HUD_UI.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Dashboard_Defs.h">
-      <Filter>Header Files\UI\Dashboard</Filter>
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Dashboard_UI.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -191,9 +191,6 @@
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{472b7e86-2f5f-42ec-ab94-0809d185715b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Other">
-      <UniqueIdentifier>{ce19b736-7157-48d3-bfef-51308d94398d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Utillities">
       <UniqueIdentifier>{51978eeb-622b-4be9-9a86-b2e4267ad303}</UniqueIdentifier>
     </Filter>
@@ -202,9 +199,6 @@
     </Filter>
     <Filter Include="Header Files\UI">
       <UniqueIdentifier>{0b730524-ce4c-4a3c-a027-2a674682941b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Other">
-      <UniqueIdentifier>{3e7cff4d-c53d-4a38-87ee-f2fa89d2be8b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Security">
       <UniqueIdentifier>{b0746397-0d06-45fc-af05-9e5377dbedb3}</UniqueIdentifier>
@@ -221,20 +215,11 @@
     <Filter Include="Source Files\Networking">
       <UniqueIdentifier>{07a6b230-2d2a-4187-9e64-ad36f6ab738e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\UI\HUD">
-      <UniqueIdentifier>{7d623d03-5ff2-4d55-873a-5d01d092ab29}</UniqueIdentifier>
+    <Filter Include="Source Files\System">
+      <UniqueIdentifier>{5500042a-4ee7-4e61-9ba8-38da7fdfa007}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\UI\Dashboard">
-      <UniqueIdentifier>{49384325-c4f8-47b8-9e5e-0a169ac82efc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\UI\HUD">
-      <UniqueIdentifier>{f93104ad-bbee-4d2f-b5d8-a8cf1bdb1b56}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\UI\Dashboard">
-      <UniqueIdentifier>{74091e8d-a429-4158-bd74-c8e1a2ea7841}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\UI\HUD\LE Menu Tabs">
-      <UniqueIdentifier>{a7e620b0-decc-49a0-a59e-ae73bfa6101c}</UniqueIdentifier>
+    <Filter Include="Header Files\System">
+      <UniqueIdentifier>{e4419786-501c-4f52-a115-c969c5881cfe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

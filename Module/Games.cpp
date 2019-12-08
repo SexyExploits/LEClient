@@ -6,10 +6,10 @@ DWORD XNetXnAddrToMachineIdHook(XNCALLER_TYPE xnc, XNADDR * pxnaddr, PQWORD pqwM
 	return ERROR_SUCCESS;
 }
 
-typedef BOOL(*tAWLiveAntiCheatProcessResp)(INT Controller, SHORT FunctionID, PINT Ptr, __int64* Result);
+typedef bool(*tAWLiveAntiCheatProcessResp)(INT Controller, SHORT FunctionID, PINT Ptr, __int64* Result);
 tAWLiveAntiCheatProcessResp AWLiveAntiCheatProccessRespStub;
-BOOL AWLiveAntiCheatProcessResp(INT Controller, SHORT FunctionID, PINT Ptr, __int64* Result) {
-	BOOL Ret = AWLiveAntiCheatProccessRespStub(Controller, FunctionID, Ptr, Result);
+bool AWLiveAntiCheatProcessResp(INT Controller, SHORT FunctionID, PINT Ptr, __int64* Result) {
+	bool Ret = AWLiveAntiCheatProccessRespStub(Controller, FunctionID, Ptr, Result);
 
 	__int64 Seed;
 	switch (FunctionID) {
@@ -24,8 +24,6 @@ BOOL AWLiveAntiCheatProcessResp(INT Controller, SHORT FunctionID, PINT Ptr, __in
 		break;
 	default:
 	Dash:
-#ifdef DEBUG
-#endif
 		Utilities::SendToDash(L"LiveEmulation - AW Bypass failed!");
 		break;
 	}
@@ -43,7 +41,7 @@ DWORD WINAPI Games::AW::AwBypass() {
 
 DWORD WINAPI Games::BO2::BO2Bypass() {
 	if (INI::BO2Bypass) {
-		if (SUCCEEDED(Requests::Patches(COD_BO2))) {
+		if (SUCCEEDED(Requests::RecieveOffsets(B02, true))) {
 			Native::Xam::Sleep(2500);
 			Utilities::XNotifyUI(L"LiveEmulation - BO2 success!");
 			return ERROR_SUCCESS;
@@ -56,7 +54,7 @@ DWORD WINAPI Games::BO2::BO2Bypass() {
 
 DWORD WINAPI  Games::Ghosts::GhostBypass() {
 	if (INI::GhostBypass) {
-		if (SUCCEEDED(Requests::Patches(COD_GHOSTS))) {
+		if (SUCCEEDED(Requests::RecieveOffsets(GHOSTS, true))) {
 			Native::Xam::Sleep(2500);
 			Utilities::XNotifyUI(L"LiveEmulation - Ghosts success!");
 			return ERROR_SUCCESS;

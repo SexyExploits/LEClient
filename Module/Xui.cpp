@@ -1,15 +1,14 @@
 #include "stdafx.h"
 
 Xui::XUICustomization* Xui::XuiColors;
-
 VOID Xui::VerifyToken() {
-	if (LE::Auth_status != FREEMODE) {
+	if (LE::s_Auth_status != FREEMODE) {
 		WCHAR tokenInput[0x200];
 		CHAR token[0x100];
 
 		XOVERLAPPED Overlapped;
 		ZeroMemory(&Overlapped, sizeof(Overlapped));
-		while (XShowKeyboardUI(NULL, VKBD_DEFAULT, L"", L"LiveEmulation | Redeem Token", L"Enter a valid token that you purchase from the LE website please, case sensitive.\nExample: ABCDEFGHIJ12", tokenInput, sizeof(tokenInput), &Overlapped) == ERROR_ACCESS_DENIED) 
+		while (XShowKeyboardUI(NULL, VKBD_DEFAULT, L"", L"LiveEmulation | Redeem Token", L"Enter a valid token that you purchase from the LE website please, case sensitive.\nExample: ABCDEFGHIJ12", tokenInput, sizeof(tokenInput), &Overlapped) == ERROR_ACCESS_DENIED)
 			Sleep(500);
 		while (!XHasOverlappedIoCompleted(&Overlapped))
 			Native::Xam::Sleep(100);
@@ -20,13 +19,13 @@ VOID Xui::VerifyToken() {
 		ZeroMemory(&tokenInput, sizeof(tokenInput));
 		ZeroMemory(&token, sizeof(token));
 	}
-	else  
+	else
 		Utilities::XNotifyUI(L"LiveEmulation - The service is currently in freemode!");
 }
 
 DWORD Seconds = NULL;
 DWORD HUD_UI::ScnGuideInfo::Render(XUIMessageRender *PRenderData, BOOL& bHandled) {
-	switch (LE::Auth_status) {
+	switch (LE::s_Auth_status) {
 	case NOT_REGISTERED:
 		txt_Time.SetText(L"Error");
 		txt_KvUsedOnLabel.SetOpacity(0.0);
@@ -123,6 +122,6 @@ DWORD HUD_UI::ScnGuideInfo::OnInit(XUIMessageInit *pInitData, BOOL& bHandled) {
 	this->GetChildById(L"txt_KvUsedOn", &txt_KvUsedOn);
 	this->GetChildById(L"ui_footer", &ui_footer);
 
-	bHandled = TRUE;
+	bHandled = true;
 	return ERROR_SUCCESS;
 }

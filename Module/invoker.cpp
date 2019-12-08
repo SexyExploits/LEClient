@@ -35,7 +35,7 @@ inline INT ProtectOrdinal(INT Ordinal, INT Key) {
 	return Ordinal;
 }
 
-VOID Invoker::RegisterNative(DWORD NativeAddress, NativeHandler Handler) {
+void Invoker::RegisterNative(DWORD NativeAddress, NativeHandler Handler) {
 	NativeRegistration* Registration = &g_natives[NativeAddress & 0xFF];
 	if (Registration != nullptr) {
 		while (Registration->m_next != nullptr) {
@@ -43,14 +43,14 @@ VOID Invoker::RegisterNative(DWORD NativeAddress, NativeHandler Handler) {
 		}
 
 		if (Registration->GetCount() == 9) {
-			Registration->m_next = static_cast<NativeRegistration*>(malloc(sizeof(NativeRegistration)));
+			Registration->m_next = reinterpret_cast<NativeRegistration*>(malloc(sizeof(NativeRegistration)));
 			Registration = Registration->m_next;
 		}
 
 		Registration->SetAddress(Registration->GetCount(), NativeAddress);
 		Registration->SetFunction(Registration->GetCount(), Handler);
 		Registration->SetCount(Registration->GetCount() + 1);
-		GetIntegrityManager()->Add(static_cast<PVOID>(Handler), 0x4);
+		GetIntegrityManager()->Add(reinterpret_cast<void*>(Handler), 0x4);
 
 #ifdef DEBUG
 		DebugPrint("[RegisterFunction] Native 0x%X registered, handler => %p\n", NativeAddress, (DWORD)Handler);
@@ -77,249 +77,249 @@ inline NativeHandler Invoker::GetNativeHandler(DWORD NativeAddress){
 
 namespace NativeHandlers {
 
-	VOID XeCryptHmacShaFinal(NativeCallContext* Context) {
+	void XeCryptHmacShaFinal(NativeCallContext* Context) {
 
 		PXECRYPT_HMACSHA_STATE pHmacShaState = Context->GetArgument <PXECRYPT_HMACSHA_STATE>(0);
-		CONST PBYTE pbOut = Context->GetArgument <CONST PBYTE>(1);
+		CONST BYTE* pbOut = Context->GetArgument <CONST BYTE*>(1);
 		DWORD cbOut = Context->GetArgument <DWORD>(2);
 
 		INT Ordinal = ProtectOrdinal(0x5C06, 0x818); // 0x181
 
-		PVOID Return = ((PVOID(*)(PXECRYPT_HMACSHA_STATE, CONST PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pHmacShaState, pbOut, cbOut);
+		void* Return = ((void*(*)(PXECRYPT_HMACSHA_STATE, CONST BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pHmacShaState, pbOut, cbOut);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptHmacShaUpdate(NativeCallContext* Context) {
+	void XeCryptHmacShaUpdate(NativeCallContext* Context) {
 
 		PXECRYPT_HMACSHA_STATE pHmacShaState = Context->GetArgument <PXECRYPT_HMACSHA_STATE>(0);
-		CONST PBYTE pbInp = Context->GetArgument <CONST PBYTE>(1);
+		CONST BYTE* pbInp = Context->GetArgument <CONST BYTE*>(1);
 		DWORD cbInp = Context->GetArgument <DWORD>(2);
 
 		INT Ordinal = ProtectOrdinal(0x5494, 0x187); // 0x180
 
-		PVOID Return = ((PVOID(*)(PXECRYPT_HMACSHA_STATE, CONST PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pHmacShaState, pbInp, cbInp);
+		void* Return = ((void*(*)(PXECRYPT_HMACSHA_STATE, CONST BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pHmacShaState, pbInp, cbInp);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptHmacShaInit(NativeCallContext* Context) {
+	void XeCryptHmacShaInit(NativeCallContext* Context) {
 
 		PXECRYPT_HMACSHA_STATE pHmacShaState = Context->GetArgument <PXECRYPT_HMACSHA_STATE>(0);
-		CONST PBYTE pbKey = Context->GetArgument <CONST PBYTE>(1);
+		CONST BYTE* pbKey = Context->GetArgument <CONST BYTE*>(1);
 		DWORD cbKey = Context->GetArgument <DWORD>(2);
 
 		INT Ordinal = ProtectOrdinal(0x7AC1, 0xF71); // 0x17F
 
-		PVOID Return = ((PVOID(*)(PXECRYPT_HMACSHA_STATE, CONST PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pHmacShaState, pbKey, cbKey);
+		void* Return = ((void*(*)(PXECRYPT_HMACSHA_STATE, CONST BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pHmacShaState, pbKey, cbKey);
 		Context->SetResult(0, Return);
 	}
 
-	VOID KeGetCurrentProcessType(NativeCallContext* Context) {
+	void KeGetCurrentProcessType(NativeCallContext* Context) {
 
 		INT Ordinal = ProtectOrdinal(0xB2E8, 0x6661); // 0x66
 
-		UCHAR Return = ((UCHAR(*)())Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))();
+		UCHAR Return = ((UCHAR(*)())Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))();
 		Context->SetResult(0, Return);
 	}
 
 	// crypto
-	VOID XeCryptDes3Ecb(NativeCallContext* Context) {
+	void XeCryptDes3Ecb(NativeCallContext* Context) {
 
 		PXECRYPT_DES3_STATE pDes3State = Context->GetArgument <PXECRYPT_DES3_STATE>(0);
-		CONST PBYTE pbInp = Context->GetArgument <CONST PBYTE>(1);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(2);
-		BOOL fEncrypt = Context->GetArgument <BOOL>(3); 
+		CONST BYTE* pbInp = Context->GetArgument <CONST BYTE*>(1);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(2);
+		bool fEncrypt = Context->GetArgument <bool>(3); 
 
 		INT Ordinal = ProtectOrdinal(0xEDF0, 0x971A); // 0x179
 
-		PVOID Return = ((PVOID(*)(CONST PXECRYPT_DES3_STATE, CONST PBYTE, PBYTE, BOOL))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pDes3State, pbInp, pbOut, fEncrypt);
+		void* Return = ((void*(*)(CONST PXECRYPT_DES3_STATE, CONST BYTE*, BYTE*, bool))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pDes3State, pbInp, pbOut, fEncrypt);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptDes3Key(NativeCallContext* Context) {
+	void XeCryptDes3Key(NativeCallContext* Context) {
 
 		PXECRYPT_DES3_STATE pDes3State = Context->GetArgument <PXECRYPT_DES3_STATE>(0);
-		CONST PBYTE pbKey = Context->GetArgument <CONST PBYTE>(1);
+		CONST BYTE* pbKey = Context->GetArgument <CONST BYTE*>(1);
 
 		INT Ordinal = ProtectOrdinal(0xDDF2, 0x871D); // 0x178
 
-		PVOID Return = ((PVOID(*)(PXECRYPT_DES3_STATE, CONST PBYTE))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pDes3State, pbKey);
+		void* Return = ((void*(*)(PXECRYPT_DES3_STATE, CONST BYTE*))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pDes3State, pbKey);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptAesEcb(NativeCallContext* Context) {
+	void XeCryptAesEcb(NativeCallContext* Context) {
 
 		CONST PXECRYPT_AES_STATE pAesState = Context->GetArgument <CONST PXECRYPT_AES_STATE>(0);
-		CONST PBYTE pbInp = Context->GetArgument <CONST PBYTE>(1);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(2);
-		BOOL fEncrypt = Context->GetArgument <BOOL>(3);
+		CONST BYTE* pbInp = Context->GetArgument <CONST BYTE*>(1);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(2);
+		bool fEncrypt = Context->GetArgument <bool>(3);
 
 		INT Ordinal = ProtectOrdinal(0xF3DB, 0xA512); // 0x15A
 
-		PVOID Return = ((PVOID(*)(CONST PXECRYPT_AES_STATE, CONST PBYTE, PBYTE, BOOL))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pAesState, pbInp, pbOut, fEncrypt);
+		void* Return = ((void*(*)(CONST PXECRYPT_AES_STATE, CONST BYTE*, BYTE*, bool))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pAesState, pbInp, pbOut, fEncrypt);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptAesCbc(NativeCallContext* Context) {
+	void XeCryptAesCbc(NativeCallContext* Context) {
 
 		PXECRYPT_AES_STATE pAesState = Context->GetArgument <PXECRYPT_AES_STATE>(0);
-		CONST PBYTE pbInp = Context->GetArgument <CONST PBYTE>(1);
+		CONST BYTE* pbInp = Context->GetArgument <CONST BYTE*>(1);
 		DWORD cbInp = Context->GetArgument <DWORD>(2);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(3);
-		PBYTE pbFeed = Context->GetArgument <PBYTE>(4);
-		BOOL fEncrypt = Context->GetArgument <BOOL>(5);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(3);
+		BYTE* pbFeed = Context->GetArgument <BYTE*>(4);
+		bool fEncrypt = Context->GetArgument <bool>(5);
 
 		INT Ordinal = ProtectOrdinal(0x10395, 0xB521); // 0x15B
 
-		PVOID Return = ((PVOID(*)(PXECRYPT_AES_STATE, CONST PBYTE, DWORD, PBYTE, PBYTE, BOOL))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pAesState, pbInp, cbInp, pbOut, pbFeed, fEncrypt);
+		void* Return = ((void*(*)(PXECRYPT_AES_STATE, CONST BYTE*, DWORD, BYTE*, BYTE*, bool))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pAesState, pbInp, cbInp, pbOut, pbFeed, fEncrypt);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptAesKey(NativeCallContext* Context) {
+	void XeCryptAesKey(NativeCallContext* Context) {
 
 		PXECRYPT_AES_STATE pAesState = Context->GetArgument <PXECRYPT_AES_STATE>(0);
-		PBYTE pbKey = Context->GetArgument <PBYTE>(1);
+		BYTE* pbKey = Context->GetArgument <BYTE*>(1);
 
 		INT Ordinal = ProtectOrdinal(0xE807, 0x9D51); // 0x159
 
-		PVOID Return = ((PVOID(*)(PXECRYPT_AES_STATE, PBYTE))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pAesState, pbKey);
+		void* Return = ((void*(*)(PXECRYPT_AES_STATE, BYTE*))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pAesState, pbKey);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptHmacSha(NativeCallContext* Context) {
+	void XeCryptHmacSha(NativeCallContext* Context) {
 
-		CONST PBYTE pbKey = Context->GetArgument <CONST PBYTE>(0);
+		CONST BYTE* pbKey = Context->GetArgument <CONST BYTE*>(0);
 		DWORD cbKey = Context->GetArgument <DWORD>(1);
-		CONST PBYTE pbInp1 = Context->GetArgument <CONST PBYTE>(2);
+		CONST BYTE* pbInp1 = Context->GetArgument <CONST BYTE*>(2);
 		DWORD cbInp1 = Context->GetArgument <DWORD>(3);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(4);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(4);
 		DWORD cbOut = Context->GetArgument <DWORD>(5);
 
 		INT Ordinal = ProtectOrdinal(0x7C0B, 0x281A); // 0x182
 
-		PVOID Return = ((PVOID(*)(CONST PBYTE, DWORD, CONST PBYTE, DWORD, CONST PBYTE, DWORD, CONST PBYTE, DWORD, PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pbKey, cbKey, pbInp1, cbInp1, NULL, NULL, NULL, NULL, pbOut, cbOut);
+		void* Return = ((void*(*)(CONST BYTE*, DWORD, CONST BYTE*, DWORD, CONST BYTE*, DWORD, CONST BYTE*, DWORD, BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pbKey, cbKey, pbInp1, cbInp1, NULL, NULL, NULL, NULL, pbOut, cbOut);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptRotSumSha(NativeCallContext* Context) {
+	void XeCryptRotSumSha(NativeCallContext* Context) {
 
-		CONST PBYTE pbInp1 = Context->GetArgument <CONST PBYTE>(0);
+		CONST BYTE* pbInp1 = Context->GetArgument <CONST BYTE*>(0);
 		DWORD cbInp1 = Context->GetArgument <DWORD>(1);
-		CONST PBYTE pbInp2 = Context->GetArgument <CONST PBYTE>(2);
+		CONST BYTE* pbInp2 = Context->GetArgument <CONST BYTE*>(2);
 		DWORD cbInp2 = Context->GetArgument <DWORD>(3);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(4);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(4);
 		DWORD cbOut = Context->GetArgument <DWORD>(5);
 
 		INT Ordinal = ProtectOrdinal(0x13E02, 0xEA1F); // 0x18E
 
-		PVOID Return = ((PVOID(*)(CONST PBYTE, DWORD, CONST PBYTE, DWORD, PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pbInp1, cbInp1, pbInp2, cbInp2, pbOut, cbOut);
+		void* Return = ((void*(*)(CONST BYTE*, DWORD, CONST BYTE*, DWORD, BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pbInp1, cbInp1, pbInp2, cbInp2, pbOut, cbOut);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptMd5(NativeCallContext* Context) {
+	void XeCryptMd5(NativeCallContext* Context) {
 
-		CONST PBYTE pbInp1 = Context->GetArgument <CONST PBYTE>(0);
+		CONST BYTE* pbInp1 = Context->GetArgument <CONST BYTE*>(0);
 		DWORD cbInp1 = Context->GetArgument <DWORD>(1);
-		CONST PBYTE pbInp2 = Context->GetArgument <CONST PBYTE>(2);
+		CONST BYTE* pbInp2 = Context->GetArgument <CONST BYTE*>(2);
 		DWORD cbInp2 = Context->GetArgument <DWORD>(3);
-		CONST PBYTE pbInp3 = Context->GetArgument <CONST PBYTE>(4);
+		CONST BYTE* pbInp3 = Context->GetArgument <CONST BYTE*>(4);
 		DWORD cbInp3 = Context->GetArgument <DWORD>(5);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(6);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(6);
 		DWORD cbOut = Context->GetArgument <DWORD>(7);
 
 		INT Ordinal = ProtectOrdinal(0xCC18, 0x7810); // 0x187
 
-		PVOID Return = ((PVOID(*)(CONST PBYTE, DWORD, CONST PBYTE, DWORD, CONST PBYTE, DWORD, PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pbInp1, cbInp1, pbInp2, cbInp2, pbInp3, cbInp3, pbOut, cbOut);
+		void* Return = ((void*(*)(CONST BYTE*, DWORD, CONST BYTE*, DWORD, CONST BYTE*, DWORD, BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pbInp1, cbInp1, pbInp2, cbInp2, pbInp3, cbInp3, pbOut, cbOut);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptSha(NativeCallContext* Context) {
+	void XeCryptSha(NativeCallContext* Context) {
 		
-		CONST PBYTE pbInp1 = Context->GetArgument <CONST PBYTE>(0);
+		CONST BYTE* pbInp1 = Context->GetArgument <CONST BYTE*>(0);
 		DWORD cbInp1 = Context->GetArgument <DWORD>(1);
-		CONST PBYTE pbInp2 = Context->GetArgument <CONST PBYTE>(2);
+		CONST BYTE* pbInp2 = Context->GetArgument <CONST BYTE*>(2);
 		DWORD cbInp2 = Context->GetArgument <DWORD>(3);
-		CONST PBYTE pbInp3 = Context->GetArgument <CONST PBYTE>(4);
+		CONST BYTE* pbInp3 = Context->GetArgument <CONST BYTE*>(4);
 		DWORD cbInp3 = Context->GetArgument <DWORD>(5);
-		PBYTE pbOut = Context->GetArgument <PBYTE>(6);
+		BYTE* pbOut = Context->GetArgument <BYTE*>(6);
 		DWORD cbOut = Context->GetArgument <DWORD>(7);
 
 		INT Ordinal = ProtectOrdinal(0x578C, 0x291); // 0x192
 
-		PVOID Return = ((PVOID(*)(CONST PBYTE, DWORD, CONST PBYTE, DWORD, CONST PBYTE, DWORD, PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pbInp1, cbInp1, pbInp2, cbInp2, pbInp3, cbInp3, pbOut, cbOut);
+		void* Return = ((void*(*)(CONST BYTE*, DWORD, CONST BYTE*, DWORD, CONST BYTE*, DWORD, BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pbInp1, cbInp1, pbInp2, cbInp2, pbInp3, cbInp3, pbOut, cbOut);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptRc4(NativeCallContext* Context) {
+	void XeCryptRc4(NativeCallContext* Context) {
 
-		CONST PBYTE pbKey = Context->GetArgument<CONST PBYTE>(0);
+		CONST BYTE* pbKey = Context->GetArgument<CONST BYTE*>(0);
 		DWORD cbKey = Context->GetArgument<DWORD>(1);
-		PBYTE pbInpOut = Context->GetArgument<PBYTE>(2);
+		BYTE* pbInpOut = Context->GetArgument<BYTE*>(2);
 		DWORD cbInpOut = Context->GetArgument<DWORD>(3);
 
 		INT Ordinal = ProtectOrdinal(0x589D, 0xD83); // 0x18D
 
-		PVOID Return = ((PVOID(*)(CONST PBYTE, DWORD, PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pbKey, cbKey, pbInpOut, cbInpOut);
+		void* Return = ((void*(*)(CONST BYTE*, DWORD, BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pbKey, cbKey, pbInpOut, cbInpOut);
 		Context->SetResult(0, Return);
 	}
 	////////////////
 
-	VOID XexLoadImageFromMemory(NativeCallContext* Context) {
+	void XexLoadImageFromMemory(NativeCallContext* Context) {
 
-		PVOID Image = Context->GetArgument<PVOID>(0);
+		void* Image = Context->GetArgument<void*>(0);
 		DWORD ImageSize = Context->GetArgument<DWORD>(1);
 		LPCSTR ImageName = Context->GetArgument<LPCSTR>(2);
 
 		INT Ordinal = ProtectOrdinal(0x5fc3, 0xA4A); // 0x19a
 
-		DWORD Return = ((DWORD(*)(PVOID, DWORD, LPCSTR, DWORD, DWORD, PHANDLE))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Image, ImageSize, ImageName, 0x00000008, NULL, NULL);
+		DWORD Return = ((DWORD(*)(void*, DWORD, LPCSTR, DWORD, DWORD, PHANDLE))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Image, ImageSize, ImageName, 0x00000008, NULL, NULL);
 		Context->SetResult(0, Return);
 	}
 
-	VOID RtlImageXexHeaderField(NativeCallContext* Context) {
+	void RtlImageXexHeaderField(NativeCallContext* Context) {
 
-		PVOID XexHeaderBase = Context->GetArgument<PVOID>(0);
+		void* XexHeaderBase = Context->GetArgument<void*>(0);
 		DWORD ImageField = Context->GetArgument<DWORD>(1);
 
 		INT Ordinal = ProtectOrdinal(0x100CE, 0xB436); // 0x12B
 
-		PVOID Return = ((PVOID(*)(PVOID, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(XexHeaderBase, ImageField);
+		void* Return = ((void*(*)(void*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(XexHeaderBase, ImageField);
 		Context->SetResult(0, Return);
 	}
 
-	VOID MmIsAddressValid(NativeCallContext* Context) {
+	void MmIsAddressValid(NativeCallContext* Context) {
 
-		PVOID Address = Context->GetArgument<PVOID>(0);
+		void* Address = Context->GetArgument<void*>(0);
 
 		INT Ordinal = ProtectOrdinal(0x7723, 0x220F); // 0xBF
 
-		BOOL Return = ((BOOL(*)(PVOID))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Address);
+		bool Return = ((bool(*)(void*))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Address);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XexUnloadImage(NativeCallContext* Context) {
+	void XexUnloadImage(NativeCallContext* Context) {
 
-		HANDLE moduleHandle = Context->GetArgument<HANDLE>(0);
+		HANDLE moduhLE = Context->GetArgument<HANDLE>(0);
 
 		INT Ordinal = ProtectOrdinal(0x6121, 0x1313); // 0x1A1
 
-		PVOID Return = ((PVOID(*)(HANDLE))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(moduleHandle);
+		void* Return = ((void*(*)(HANDLE))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(moduhLE);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XexLoadExecutable(NativeCallContext* Context) {
+	void XexLoadExecutable(NativeCallContext* Context) {
 
-		PCHAR szXexName = Context->GetArgument<PCHAR>(0);
+		CHAR* szXexName = Context->GetArgument<CHAR*>(0);
 		PHANDLE pHandle = Context->GetArgument<PHANDLE>(1);
 		DWORD dwModuleTypeFlags = Context->GetArgument<DWORD>(2);
 		DWORD dwMinimumVersion = Context->GetArgument<DWORD>(3);
 
 		INT Ordinal = ProtectOrdinal(0xEC19, 0x9812); // 0x198 
 
-		NTSTATUS Return = ((NTSTATUS(*)(PCHAR, PHANDLE, DWORD, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(szXexName, pHandle, dwModuleTypeFlags, dwMinimumVersion);
+		NTSTATUS Return = ((NTSTATUS(*)(CHAR*, PHANDLE, DWORD, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(szXexName, pHandle, dwModuleTypeFlags, dwMinimumVersion);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XexLoadImage(NativeCallContext* Context) {
+	void XexLoadImage(NativeCallContext* Context) {
 
 		LPCSTR szXexName = Context->GetArgument<LPCSTR>(0);
 		DWORD dwModuleTypeFlags = Context->GetArgument<DWORD>(1);
@@ -328,161 +328,161 @@ namespace NativeHandlers {
 
 		INT Ordinal = ProtectOrdinal(0xEF18, 0x9912); // 0x199 
 
-		NTSTATUS Return = ((NTSTATUS(*)(LPCSTR, DWORD, DWORD, PHANDLE))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(szXexName, dwModuleTypeFlags, dwMinimumVersion, pHandle);
+		NTSTATUS Return = ((NTSTATUS(*)(LPCSTR, DWORD, DWORD, PHANDLE))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(szXexName, dwModuleTypeFlags, dwMinimumVersion, pHandle);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XexGetModuleSection(NativeCallContext* Context) {
+	void XexGetModuleSection(NativeCallContext* Context) {
 
-		HANDLE ModuleHandle = Context->GetArgument<HANDLE>(0);
+		HANDLE ModuhLE = Context->GetArgument<HANDLE>(0);
 		LPCSTR  szSectionName = Context->GetArgument<LPCSTR>(1);
-		PVOID*  pSectionData = Context->GetArgument<PVOID*>(2);
+		void**  pSectionData = Context->GetArgument<void**>(2);
 		ULONG*  pSectionSize = Context->GetArgument<ULONG*>(3);
 
 		INT Ordinal = ProtectOrdinal(0xBF1A, 0x691F); // 0x196 
 
-		BOOL Return = ((BOOL(*)(HANDLE, LPCSTR, PVOID*, ULONG*))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(ModuleHandle, szSectionName, pSectionData, pSectionSize);
+		bool Return = ((bool(*)(HANDLE, LPCSTR, void**, ULONG*))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(ModuhLE, szSectionName, pSectionData, pSectionSize);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XexPcToFileHeader(NativeCallContext* Context) {
+	void XexPcToFileHeader(NativeCallContext* Context) {
 
-		PVOID Address = Context->GetArgument<PVOID>(0);
+		void* Address = Context->GetArgument<void*>(0);
 		PLDR_DATA_TABLE_ENTRY*  ldatOut = Context->GetArgument<PLDR_DATA_TABLE_ENTRY*>(1);
 
 		INT Ordinal = ProtectOrdinal(0x599D, 0xC92); // 0x19C 
 
-		PVOID Return = ((PVOID(*)(PVOID, PLDR_DATA_TABLE_ENTRY*))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Address, ldatOut);
+		void* Return = ((void*(*)(void*, PLDR_DATA_TABLE_ENTRY*))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Address, ldatOut);
 		Context->SetResult(0, Return);
 	}
 
-	VOID ExCreateThread(NativeCallContext* Context) {
+	void ExCreateThread(NativeCallContext* Context) {
 
 		PHANDLE pHandle = Context->GetArgument<PHANDLE>(0);
 		DWORD dwStackSize = Context->GetArgument<DWORD>(1);
-		LPDWORD lpThreadId = Context->GetArgument<LPDWORD>(2);
-		PVOID apiThreadStartup = Context->GetArgument<PVOID>(3);
+		DWORD* lpThreadId = Context->GetArgument<DWORD*>(2);
+		void* apiThreadStartup = Context->GetArgument<void*>(3);
 		LPTHREAD_START_ROUTINE lpStartAddress = Context->GetArgument<LPTHREAD_START_ROUTINE>(4);
-		LPVOID lpParameter = Context->GetArgument<LPVOID>(5);
+		void* lpParameter = Context->GetArgument<void*>(5);
 		DWORD dwCreationFlagsMod = Context->GetArgument<DWORD>(6);
 
 		INT Ordinal = ProtectOrdinal(0x6A9E, 0x1D04); // 0x0D 
 
-		DWORD Return = ((DWORD(*)(PHANDLE, DWORD, LPDWORD, PVOID, LPTHREAD_START_ROUTINE, LPVOID, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(pHandle, dwStackSize, lpThreadId, apiThreadStartup, lpStartAddress, lpParameter, dwCreationFlagsMod);
+		DWORD Return = ((DWORD(*)(PHANDLE, DWORD, DWORD*, void*, LPTHREAD_START_ROUTINE, void*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(pHandle, dwStackSize, lpThreadId, apiThreadStartup, lpStartAddress, lpParameter, dwCreationFlagsMod);
 		Context->SetResult(0, Return);
 	}
 
-	VOID ObCreateSymbolicLink(NativeCallContext* Context) {
+	void ObCreateSymbolicLink(NativeCallContext* Context) {
 
 		PSTRING SymbolicLinkName = Context->GetArgument<PSTRING>(0);
 		PSTRING DeviceName = Context->GetArgument<PSTRING>(1);
-		BOOL System = Context->GetArgument<BOOL>(2);
+		bool System = Context->GetArgument<bool>(2);
 
 		INT Ordinal = ProtectOrdinal(0x57F0, 0x124); // 0x103 
 
-		HRESULT Return = ((HRESULT(*)(PSTRING, PSTRING, BOOL))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(SymbolicLinkName, DeviceName, System);
+		HRESULT Return = ((HRESULT(*)(PSTRING, PSTRING, bool))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(SymbolicLinkName, DeviceName, System);
 		Context->SetResult(0, Return);
 	}
 
-	VOID RtlInitAnsiString(NativeCallContext* Context) {
+	void RtlInitAnsiString(NativeCallContext* Context) {
 
 		PANSI_STRING DestinationString = Context->GetArgument<PANSI_STRING>(0);
 		PCSZ DeviceName = Context->GetArgument<PCSZ>(1);
 
 		INT Ordinal = ProtectOrdinal(0x57E2, 0x121); // 0x12C 
 
-		PVOID Return = ((PVOID(*)(PANSI_STRING, PCSZ))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(DestinationString, DeviceName);
+		void* Return = ((void*(*)(PANSI_STRING, PCSZ))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(DestinationString, DeviceName);
 		Context->SetResult(0, Return);
 	}
 
-	VOID ExSetXConfigSetting(NativeCallContext* Context) {
+	void ExSetXConfigSetting(NativeCallContext* Context) {
 
 		WORD Category = Context->GetArgument<WORD>(0);
 		WORD Setting = Context->GetArgument<WORD>(1);
-		PVOID Buffer = Context->GetArgument<PVOID>(2);
+		void* Buffer = Context->GetArgument<void*>(2);
 		WORD szSetting = Context->GetArgument<WORD>(3);
 
 		INT Ordinal = ProtectOrdinal(0x6146, 0x1551); // 0x18 
 
-		NTSTATUS Return = ((NTSTATUS(*)(WORD, WORD, PVOID, WORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Category, Setting, Buffer, szSetting);
+		NTSTATUS Return = ((NTSTATUS(*)(WORD, WORD, void*, WORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Category, Setting, Buffer, szSetting);
 		Context->SetResult(0, Return);
 	}
 
-	VOID ExGetXConfigSetting(NativeCallContext* Context) {
+	void ExGetXConfigSetting(NativeCallContext* Context) {
 
 		WORD Category = Context->GetArgument<WORD>(0);
 		WORD Setting = Context->GetArgument<WORD>(1);
-		PVOID Buffer = Context->GetArgument<PVOID>(2);
+		void* Buffer = Context->GetArgument<void*>(2);
 		WORD Size = Context->GetArgument<WORD>(3);
 		PWORD szSetting = Context->GetArgument<PWORD>(4);
 
 		INT Ordinal = ProtectOrdinal(0x62F2, 0x1535); // 0x10 
 
-		NTSTATUS Return = ((NTSTATUS(*)(WORD, WORD, PVOID, WORD, PWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Category, Setting, Buffer, Size, szSetting);
+		NTSTATUS Return = ((NTSTATUS(*)(WORD, WORD, void*, WORD, PWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Category, Setting, Buffer, Size, szSetting);
 		Context->SetResult(0, Return);
 	}
 
-	VOID MmGetPhysicalAddress(NativeCallContext* Context) {
-		PVOID Address = Context->GetArgument<PVOID>(0);
+	void MmGetPhysicalAddress(NativeCallContext* Context) {
+		void* Address = Context->GetArgument<void*>(0);
 
 		INT Ordinal = ProtectOrdinal(0x5EB0, 0xBE1); // 0xBE 
 
-		PVOID Return = ((PVOID(*)(PVOID))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Address);
+		void* Return = ((void*(*)(void*))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Address);
 		Context->SetResult(0, Return);
 	}
 
-	VOID VdDisplayFatalError(NativeCallContext* Context) {
+	void VdDisplayFatalError(NativeCallContext* Context) {
 
 		INT Ordinal = ProtectOrdinal(0x5CE0, 0x945); // 0x1B2 
 
-		PVOID Return = ((PVOID(*)(DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(0x4F);
+		void* Return = ((void*(*)(DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(0x4F);
 		Context->SetResult(0, Return);
 	}
 
-	VOID HalReturnToFirmware(NativeCallContext* Context) {
+	void HalReturnToFirmware(NativeCallContext* Context) {
 
 		FIRMWARE_REENTRY PowerDownMode = Context->GetArgument<FIRMWARE_REENTRY>(0);
 		INT Ordinal = ProtectOrdinal(0x122ED, 0xD6D6); // 0x28 
 
-		PVOID Return = ((PVOID(*)(FIRMWARE_REENTRY))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(PowerDownMode);
+		void* Return = ((void*(*)(FIRMWARE_REENTRY))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(PowerDownMode);
 
 		Context->SetResult(0, Return);
 	}
 
-	VOID XeCryptRandom(NativeCallContext* Context) {
+	void XeCryptRandom(NativeCallContext* Context) {
 
-		PBYTE Bytes = Context->GetArgument<PBYTE>(0);
+		BYTE* Bytes = Context->GetArgument<BYTE*>(0);
 		DWORD AmountOfBytes = Context->GetArgument<DWORD>(1);
 		INT Ordinal = ProtectOrdinal(0x5191, 0x48C); // 0x18A
 
-		PVOID Return = ((PVOID(*)(PBYTE, DWORD))Utilities::ResolveFunction((HMODULE)LE::Kernelhandle, Ordinal))(Bytes, AmountOfBytes);
+		void* Return = ((void*(*)(BYTE*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hKernel, Ordinal))(Bytes, AmountOfBytes);
 		Context->SetResult(0, Return);
 	}
 
 	/////////////////////////////////////// XAM /////////////////////////////////////////////////
 
-	VOID XNetLogonGetExtendedStatus(NativeCallContext* Context) {
+	void XNetLogonGetExtendedStatus(NativeCallContext* Context) {
 
-		PDWORD Input = Context->GetArgument<PDWORD>(0);
-		PDWORD Output = Context->GetArgument<PDWORD>(1);
+		DWORD* Input = Context->GetArgument<DWORD*>(0);
+		DWORD* Output = Context->GetArgument<DWORD*>(1);
 
 		INT Ordinal = ProtectOrdinal(0xB314, 0x101B8); // 0x13B
 
-		DWORD Return = ((DWORD(*)(PDWORD, PDWORD))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, 0x13B))(Input, Output);
+		DWORD Return = ((DWORD(*)(DWORD*, DWORD*))Utilities::ResolveFunction((HMODULE)LE::hXam, 0x13B))(Input, Output);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XamCacheReset(NativeCallContext* Context) {
+	void XamCacheReset(NativeCallContext* Context) {
 
 		XAM_CACHE_FILE_TYPE FileType = Context->GetArgument<XAM_CACHE_FILE_TYPE>(0);
 		 
 		INT Ordinal = ProtectOrdinal(0x51A7, 0x783); // 0x2B7
 
-		BOOL Return = ((BOOL(*)(XAM_CACHE_FILE_TYPE))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(FileType);
+		bool Return = ((bool(*)(XAM_CACHE_FILE_TYPE))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(FileType);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_XNetXnAddrToMachineId(NativeCallContext* Context) {
+	void NetDll_XNetXnAddrToMachineId(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnc = Context->GetArgument<XNCALLER_TYPE>(0);
 		CONST XNADDR pxnaddr = Context->GetArgument<CONST XNADDR>(1);
@@ -490,65 +490,65 @@ namespace NativeHandlers {
 
 		INT Ordinal = ProtectOrdinal(0x5410, 0x043); // 0X40
 
-		INT Return = ((INT(*)(XNCALLER_TYPE, CONST XNADDR, ULONGLONG))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnc, pxnaddr, pqwMachineId);
+		INT Return = ((INT(*)(XNCALLER_TYPE, CONST XNADDR, ULONGLONG))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnc, pxnaddr, pqwMachineId);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XNotifyQueueUI(NativeCallContext* Context) {
+	void XNotifyQueueUI(NativeCallContext* Context) {
 
 		PWCHAR pwszStringParam = Context->GetArgument<PWCHAR>(0);
 
 		INT Ordinal = ProtectOrdinal(0x5C66, 0x0929); // 0x290
 
-		PVOID Return = ((PVOID(*)(...))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(XNOTIFYUI_TYPE_PREFERRED_REVIEW, XUSER_INDEX_ANY, XNOTIFYUI_PRIORITY_HIGH, pwszStringParam, NULL);
+		void* Return = ((void*(*)(...))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(XNOTIFYUI_TYPE_PREFERRED_REVIEW, XUSER_INDEX_ANY, XNOTIFYUI_PRIORITY_HIGH, pwszStringParam, NULL);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XNotifyUIGetOptions(NativeCallContext* Context) {
+	void XNotifyUIGetOptions(NativeCallContext* Context) {
 
-		PBOOL pfShow = Context->GetArgument<PBOOL>(0);
-		PBOOL pfShowMovie = Context->GetArgument<PBOOL>(1);
-		PBOOL pfPlaySound = Context->GetArgument<PBOOL>(2);
-		PBOOL pfShowIPTV = Context->GetArgument<PBOOL>(3);
+		bool* pfShow = Context->GetArgument<bool*>(0);
+		bool* pfShowMovie = Context->GetArgument<bool*>(1);
+		bool* pfPlaySound = Context->GetArgument<bool*>(2);
+		bool* pfShowIPTV = Context->GetArgument<bool*>(3);
 
 		INT Ordinal = ProtectOrdinal(0x8C1F, 0x391F); // 0x293
 
-		PVOID Return = ((PVOID(*)(PBOOL, PBOOL, PBOOL, PBOOL))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(pfShow, pfShowMovie, pfPlaySound, pfShowIPTV);
+		void* Return = ((void*(*)(bool*, bool*, bool*, bool*))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(pfShow, pfShowMovie, pfPlaySound, pfShowIPTV);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XNotifyUISetOptions(NativeCallContext* Context) {
+	void XNotifyUISetOptions(NativeCallContext* Context) {
 
-		BOOL pfShow = Context->GetArgument<BOOL>(0);
-		BOOL pfShowMovie = Context->GetArgument<BOOL>(1);
-		BOOL pfPlaySound = Context->GetArgument<BOOL>(2);
-		BOOL pfShowIPTV = Context->GetArgument<BOOL>(3);
+		bool pfShow = Context->GetArgument<bool>(0);
+		bool pfShowMovie = Context->GetArgument<bool>(1);
+		bool pfPlaySound = Context->GetArgument<bool>(2);
+		bool pfShowIPTV = Context->GetArgument<bool>(3);
 
 		INT Ordinal = ProtectOrdinal(0x5C63, 0x922); // 0x292
 
-		PVOID Return = ((PVOID(*)(BOOL, BOOL, BOOL, BOOL))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(pfShow, pfShowMovie, pfPlaySound, pfShowIPTV);
+		void* Return = ((void*(*)(bool, bool, bool, bool))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(pfShow, pfShowMovie, pfPlaySound, pfShowIPTV);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XamGetCurrentTitleId(NativeCallContext* Context) {
+	void XamGetCurrentTitleId(NativeCallContext* Context) {
 
 		INT Ordinal = ProtectOrdinal(0x14836, 0xFC2A); // 0x1CF
 
-		DWORD Return = ((DWORD(*)())Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))();
+		DWORD Return = ((DWORD(*)())Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))();
 		Context->SetResult(0, Return);
 	}
 
-	VOID Sleep(NativeCallContext* Context) {
+	void Sleep(NativeCallContext* Context) {
 
 		DWORD Milliseconds = Context->GetArgument<DWORD>(0);
 		INT Ordinal = ProtectOrdinal(0x57D5, 0x634); // 0x436
 
-		PVOID Return = ((PVOID(*)(DWORD))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(Milliseconds);
+		void* Return = ((void*(*)(DWORD))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(Milliseconds);
 		Context->SetResult(0, Return);
 	}
 
 	//  Networking
-	VOID NetDll_socket(NativeCallContext* Context) {
+	void NetDll_socket(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		DWORD af = Context->GetArgument<DWORD>(1);
@@ -556,32 +556,32 @@ namespace NativeHandlers {
 		DWORD protocol = Context->GetArgument<DWORD>(3);
 		INT Ordinal = ProtectOrdinal(0x502A, 0x5FA); // 0x03
 
-		SOCKET Return = ((SOCKET(*)(XNCALLER_TYPE, INT, INT, INT))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, af, type, protocol);
+		SOCKET Return = ((SOCKET(*)(XNCALLER_TYPE, INT, INT, INT))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, af, type, protocol);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_closesocket(NativeCallContext* Context) {
+	void NetDll_closesocket(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		SOCKET socket = Context->GetArgument<SOCKET>(1);
 		DWORD Ordinal = ProtectOrdinal(0x5D2F, 0x6FC); // 0x04
 
-		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, socket);
+		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, socket);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_shutdown(NativeCallContext* Context) {
+	void NetDll_shutdown(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		SOCKET socket = Context->GetArgument<SOCKET>(1);
 		DWORD method = Context->GetArgument<DWORD>(2);
 		DWORD Ordinal = ProtectOrdinal(0xC9B7, 0x7D65); // 0x05
 
-		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET, DWORD))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, socket, method);
+		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET, DWORD))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, socket, method);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_setsockopt(NativeCallContext* Context) {
+	void NetDll_setsockopt(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		SOCKET socket = Context->GetArgument<SOCKET>(1);
@@ -591,11 +591,11 @@ namespace NativeHandlers {
 		DWORD length = Context->GetArgument<DWORD>(5);
 		DWORD Ordinal = ProtectOrdinal(0xDF85, 0x8A15); // 0x07
 
-		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET, DWORD, DWORD, const char*, DWORD))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, socket, level, option, value, length);
+		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET, DWORD, DWORD, const char*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, socket, level, option, value, length);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_connect(NativeCallContext* Context) {
+	void NetDll_connect(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		SOCKET socket = Context->GetArgument<SOCKET>(1);
@@ -603,37 +603,37 @@ namespace NativeHandlers {
 		DWORD length = Context->GetArgument<DWORD>(3);
 		DWORD Ordinal = ProtectOrdinal(0x5DC7, 0x9DC); // 0x0C
 
-		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET, sockaddr*, DWORD))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, socket, name, length);
+		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, SOCKET, sockaddr*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, socket, name, length);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_recv(NativeCallContext* Context) {
+	void NetDll_recv(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		SOCKET socket = Context->GetArgument<SOCKET>(1);
-		PCHAR buffer = Context->GetArgument<PCHAR>(2);
+		CHAR* buffer = Context->GetArgument<CHAR*>(2);
 		INT length = Context->GetArgument<INT>(3);
 		INT flags = Context->GetArgument<INT>(4);
 		DWORD Ordinal = ProtectOrdinal(0xA44D, 0x5050); // 0x12
 
-		INT Return = ((INT(*)(XNCALLER_TYPE, SOCKET, PCHAR, INT, INT))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, socket, buffer, length, flags);
+		INT Return = ((INT(*)(XNCALLER_TYPE, SOCKET, CHAR*, INT, INT))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, socket, buffer, length, flags);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_send(NativeCallContext* Context) {
+	void NetDll_send(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		SOCKET socket = Context->GetArgument<SOCKET>(1);
-		PCHAR buffer = Context->GetArgument<PCHAR>(2);
+		CHAR* buffer = Context->GetArgument<CHAR*>(2);
 		INT length = Context->GetArgument<INT>(3);
 		INT flags = Context->GetArgument<INT>(4);
 		DWORD Ordinal = ProtectOrdinal(0xA448, 0x5051); // 0x16
 
-		INT Return = ((INT(*)(XNCALLER_TYPE, SOCKET, PCHAR, INT, INT))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, socket, buffer, length, flags);
+		INT Return = ((INT(*)(XNCALLER_TYPE, SOCKET, CHAR*, INT, INT))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, socket, buffer, length, flags);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_WSAStartupEx(NativeCallContext* Context) {
+	void NetDll_WSAStartupEx(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		WORD versionA = Context->GetArgument<WORD>(1);
@@ -641,24 +641,24 @@ namespace NativeHandlers {
 		DWORD versionB = Context->GetArgument<DWORD>(3);
 		DWORD Ordinal = ProtectOrdinal(0xA465, 0x5052); // 0x24
 
-		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, WORD, WSADATA*, DWORD))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, versionA, wsad, versionB);
+		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, WORD, WSADATA*, DWORD))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, versionA, wsad, versionB);
 		Context->SetResult(0, Return);
 	}
 
-	VOID NetDll_XNetStartup(NativeCallContext* Context) {
+	void NetDll_XNetStartup(NativeCallContext* Context) {
 
 		XNCALLER_TYPE xnCaller = Context->GetArgument<XNCALLER_TYPE>(0);
 		XNetStartupParams* xnsp = Context->GetArgument<XNetStartupParams*>(1);
 		DWORD Ordinal = ProtectOrdinal(0xA473, 0x5053); // 0x33
 
-		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, XNetStartupParams*))Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))(xnCaller, xnsp);
+		DWORD Return = ((DWORD(*)(XNCALLER_TYPE, XNetStartupParams*))Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))(xnCaller, xnsp);
 		Context->SetResult(0, Return);
 	}
 
-	VOID XamLoaderGetDvdTrayState(NativeCallContext* Context) {
+	void XamLoaderGetDvdTrayState(NativeCallContext* Context) {
 
 		INT Ordinal = ProtectOrdinal(0x51F5, 0x450); // 0x1AA 
-		DVD_TRAY_STATE Return = ((DVD_TRAY_STATE(*)())Utilities::ResolveFunction((HMODULE)LE::Xamhandle, Ordinal))();
+		DVD_TRAY_STATE Return = ((DVD_TRAY_STATE(*)())Utilities::ResolveFunction((HMODULE)LE::hXam, Ordinal))();
 		Context->SetResult(0, Return);
 	}
 }
@@ -692,7 +692,7 @@ void Invoker::test() {
 
 		CryptoTools::AesCbcEncrypt(MasterKey, AesIV, AesKey, TRUE, 0x10);
 		Native::Kernel::XeCryptRotSumSha(MasterKey, sizeof(MasterKey), RotSumKey, sizeof(RotSumKey), MasterKey, sizeof(MasterKey));
-		Native::Kernel::XeCryptRc4(MasterKey, sizeof(MasterKey), (PBYTE)&ToDecrypt, 0x4);
+		Native::Kernel::XeCryptRc4(MasterKey, sizeof(MasterKey), (BYTE*)&ToDecrypt, 0x4);
 		return ToDecrypt;
 	};
 }
@@ -709,7 +709,7 @@ DWORD Invoker::RegisterPostCryptoNatives() {
 
 		CryptoTools::AesCbcEncrypt(MasterKey, AesIV, AesKey, TRUE, 0x10);
 		Native::Kernel::XeCryptRotSumSha(MasterKey, sizeof(MasterKey), RotSumKey, sizeof(RotSumKey), MasterKey, sizeof(MasterKey));
-		Native::Kernel::XeCryptRc4(MasterKey, sizeof(MasterKey), (PBYTE)&ToDecrypt, 0x4);
+		Native::Kernel::XeCryptRc4(MasterKey, sizeof(MasterKey), (BYTE*)&ToDecrypt, 0x4);
 		return ToDecrypt;
 	};
 

@@ -11,7 +11,7 @@ public:
 		DWORD Primary;
 		DWORD Secondary;
 	};
-	
+
 	static XUICustomization* XuiColors;
 
 	static BYTE XuiData[208062];

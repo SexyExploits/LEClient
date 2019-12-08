@@ -1,15 +1,14 @@
 #include "stdafx.h"
 
-PVOID CryptoTools::EncryptedMemcpy(PBYTE Dest, PBYTE Src, INT Length) {
-
+void* CryptoTools::EncryptedMemcpy(BYTE* Dest, BYTE* Src, INT Length) {
 	CopyMemory(Dest, Src, Length);
 
-	for (INT i = 0; i < Length; i++) 
+	for (auto i = 0; i < Length; i++) 
 		Dest[i] ^= (Length + 1);
 	return ERROR_SUCCESS;
 }
 
-VOID CryptoTools::CreateAesSbox(DWORD r3, DWORD r4) {
+void CryptoTools::CreateAesSbox(DWORD r3, DWORD r4) {
 
 	DWORD Rounds = 0xA;
 
@@ -56,7 +55,7 @@ VOID CryptoTools::CreateAesSbox(DWORD r3, DWORD r4) {
 }
 
 // doesnt seem to be any max values requirements however iv and key must probably be 0x10 alligned 
-VOID CryptoTools::AesCbcEncrypt(PBYTE pbAes_input, PBYTE pbIV, PBYTE pbAes_Key, BOOL bProtect, DWORD dwSize) {
+void CryptoTools::AesCbcEncrypt(BYTE* pbAes_input, BYTE* pbIV, BYTE* pbAes_Key, bool bProtect, DWORD dwSize) {
 
 	XECRYPT_AES_STATE AesState;
 	Native::Kernel::XeCryptAesKey(&AesState, pbAes_Key);
@@ -64,7 +63,7 @@ VOID CryptoTools::AesCbcEncrypt(PBYTE pbAes_input, PBYTE pbIV, PBYTE pbAes_Key, 
 }
 
 // probably only works with 0x10 byte data inputs as it doesnt take a size needs testing
-VOID CryptoTools::Des3Ecb(PBYTE pbDes3_input, PBYTE pbDes3_Key, BOOL bProtect) {
+void CryptoTools::Des3Ecb(BYTE* pbDes3_input, BYTE* pbDes3_Key, bool bProtect) {
 
 	XECRYPT_DES3_STATE Des3State;
 	Native::Kernel::XeCryptDes3Key(&Des3State, pbDes3_Key);

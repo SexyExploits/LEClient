@@ -3,18 +3,18 @@
 DWORD Xbdm::m_tableAddress;
 vector<XbdmCommandTable> Xbdm::m_commandTable;
 vector<pair<DWORD, DWORD>> Security::m_AutomaticWriteBackList;
-vector<pair<DWORD, DWORD>> Security::LEhandleReadProtection;
-vector<pair<DWORD, DWORD>> Security::LEhandleReadProtectionWhitelist;
+vector<pair<DWORD, DWORD>> Security::hLEReadProtection;
+vector<pair<DWORD, DWORD>> Security::hLEReadProtectionWhitelist;
 
-__declspec(noinline) VOID Security::IntegrityThread() {
+__declspec(noinline) void Security::IntegrityThread() {
 	auto items = GetIntegrityManager()->GetItems();
 	for (auto i = 0; i < items.size(); i++) {
 		for (auto s = 0; s < items.at(i).m_bytes.size(); s++) {
-			if (*reinterpret_cast<PDWORD>(reinterpret_cast<DWORD>(items.at(i).m_function) + s) != items.at(i).m_bytes.at(s)) {
+			if (*reinterpret_cast<DWORD*>(reinterpret_cast<DWORD>(items.at(i).m_function) + s) != items.at(i).m_bytes.at(s)) {
 #ifdef DEBUG
-			DebugPrint("Function: 0x%x | OpCode: 0x%x", items.at(i).m_bytes.at(s), *(PDWORD)((DWORD)items.at(i).m_function + s));
+			DebugPrint("Function: 0x%x | OpCode: 0x%x", items.at(i).m_bytes.at(s), *(DWORD*)((DWORD)items.at(i).m_function + s));
 #endif
-				*reinterpret_cast<PDWORD>(reinterpret_cast<DWORD>(items.at(i).m_function) + s) = items.at(i).m_bytes.at(s);
+				*reinterpret_cast<DWORD*>(reinterpret_cast<DWORD>(items.at(i).m_function) + s) = items.at(i).m_bytes.at(s);
 				return;
 			}
 		}
@@ -31,7 +31,7 @@ __declspec(noinline) VOID Security::IntegrityThread() {
 }
 
 bool bDisplayedWarning = FALSE;
-__declspec(noinline) VOID Security::DebuggerDetectionThread() {
+__declspec(noinline) void Security::DebuggerDetectionThread() {
 // Hr: 9101E3AC = debugger || watson
 // Mm: 9101E3B4 = debugger
 /* if (*(PINT)0x9101E3B4 != 0) {
@@ -50,8 +50,8 @@ if (*(PINT)0x9101E3AC) {
    Native::Xam::Sleep(500);
 }
 
-BOOL Security::XBDMSanityCheck() {
-	auto XbdmHand = GetModuleHandleA(MODULE_XBDM);
+bool Security::XBDMSanityCheck() {
+	auto XbdmHand = GetModuleHandle(MODULE_XBDM);
 	if (!XbdmHand)
 		return FALSE;
 
@@ -61,15 +61,15 @@ BOOL Security::XBDMSanityCheck() {
 	return TRUE;
 }
 
-VOID Security::UnlinkFromKEB() {
-	PLDR_DATA_TABLE_ENTRY ldr = static_cast<PLDR_DATA_TABLE_ENTRY>(LE::Kernelhandle);
+void Security::UnlinkFromKEB() {
+	PLDR_DATA_TABLE_ENTRY ldr = reinterpret_cast<PLDR_DATA_TABLE_ENTRY>(LE::hKernel);
 	PLIST_ENTRY CurrentEntry = ldr->InLoadOrderLinks.Flink;
 	PLDR_DATA_TABLE_ENTRY Current = nullptr;
 
 	while (CurrentEntry != &ldr->InLoadOrderLinks && CurrentEntry != nullptr) {
 		Current = CONTAINING_RECORD(CurrentEntry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
 
-		if (Current->ImageBase == reinterpret_cast<PVOID>(BASEADDY)) {
+		if (Current->ImageBase == reinterpret_cast<void*>(BASEADDY)) {
 			Current->InLoadOrderLinks.Flink->Blink = Current->InLoadOrderLinks.Blink;
 			Current->InLoadOrderLinks.Blink->Flink = Current->InLoadOrderLinks.Flink;
 			Current->InInitializationOrderLinks.Flink->Blink = Current->InInitializationOrderLinks.Blink;
@@ -82,75 +82,75 @@ VOID Security::UnlinkFromKEB() {
 	}
 }
 
-VOID Security::AddRegionToWhitelist(DWORD start, DWORD length) {
-	LEhandleReadProtectionWhitelist.push_back(make_pair(start, length));
+void Security::AddRegionToWhitelist(DWORD start, DWORD length) {
+	hLEReadProtectionWhitelist.push_back(make_pair(start, length));
 }
 
-typedef BOOL(*t_MmDbgReadCheckHook)(DWORD dwAddress);
+typedef bool(*t_MmDbgReadCheckHook)(DWORD dwAddress);
 t_MmDbgReadCheckHook MmDbgReadCheckHookStub;
-BOOL Security::MmDbgReadCheckHook(DWORD dwAddress) {
+bool Security::MmDbgReadCheckHook(DWORD dwAddress) {
 	DWORD Ret = MmDbgReadCheckHookStub(dwAddress);
-	if (LEhandleReadProtectionWhitelist.size() > 0) {
-		for (auto i = 0; i < LEhandleReadProtectionWhitelist.size(); i++) {
-			if (dwAddress >= LEhandleReadProtectionWhitelist.at(i).first && dwAddress <= (LEhandleReadProtectionWhitelist.at(i).first + LEhandleReadProtectionWhitelist.at(i).second))
+	if (hLEReadProtectionWhitelist.size() > 0) {
+		for (auto i = 0; i < hLEReadProtectionWhitelist.size(); i++) {
+			if (dwAddress >= hLEReadProtectionWhitelist.at(i).first && dwAddress <= (hLEReadProtectionWhitelist.at(i).first + hLEReadProtectionWhitelist.at(i).second))
 				return MmDbgReadCheckHookStub(dwAddress);
 		}
 	}
 
-	if (LEhandleReadProtection.size() > 0) {
-		for (auto i = 0; i < LEhandleReadProtection.size(); i++) {
-			if (dwAddress >= LEhandleReadProtection.at(i).first && dwAddress <= (LEhandleReadProtection.at(i).first + LEhandleReadProtection.at(i).second))
+	if (hLEReadProtection.size() > 0) {
+		for (auto i = 0; i < hLEReadProtection.size(); i++) {
+			if (dwAddress >= hLEReadProtection.at(i).first && dwAddress <= (hLEReadProtection.at(i).first + hLEReadProtection.at(i).second))
 				return FALSE;
 		}
 	}
 	return Ret;
 }
 
-VOID Security::ProtectMyMemorySpace() {
+void Security::ProtectMyMemorySpace() {
 	PLDR_DATA_TABLE_ENTRY m_XexTableEntry = nullptr;
-	XexPcToFileHeader(reinterpret_cast<PVOID>(BASEADDY), &m_XexTableEntry);
-	LE::MyModulehandleSize = m_XexTableEntry->SizeOfFullImage;
+	XexPcToFileHeader(reinterpret_cast<void*>(BASEADDY), &m_XexTableEntry);
+	LE::dwMyModuleSize = m_XexTableEntry->SizeOfFullImage;
 
 	if (m_XexTableEntry != nullptr) {
-		LEhandleReadProtection.emplace_back(make_pair(BASEADDY, m_XexTableEntry->SizeOfFullImage));
+		hLEReadProtection.emplace_back(make_pair(BASEADDY, m_XexTableEntry->SizeOfFullImage));
 		MmDbgReadCheckHookStub = reinterpret_cast<t_MmDbgReadCheckHook>(Utilities::HookFunctionStub(MODULE_KERNEL, 0x1AB, MmDbgReadCheckHook));
-		GetIntegrityManager()->Add(static_cast<PVOID>(MmDbgReadCheckHook), Utilities::GetFunctionSize(reinterpret_cast<PDWORD>(MmDbgReadCheckHook)));
+		GetIntegrityManager()->Add(reinterpret_cast<void*>(MmDbgReadCheckHook), Utilities::GetFunctionSize(reinterpret_cast<DWORD*>(MmDbgReadCheckHook)));
 	}
 	else 
 		Native::Kernel::VdDisplayFatalError();
 } 
 
-VOID Security::SetupIntegrity() {
-	GetIntegrityManager()->Add(static_cast<PVOID>(XexLoadImageFromMemory), 0x16C); // XexLoadImageFromMemory 0x8007CFA8 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(HalReturnToFirmware), 0x94); // HalReturnToFirmware 0x800682A0 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(RtlImageXexHeaderField), 0x4); // RtlImageXexHeaderField 0x80088C90 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(KeGetCurrentProcessType), 0x4); // KeGetCurrentProcessType 0x80071A68 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XexUnloadImage), 0x4); // XexUnloadImage 0x8007C838 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XexLoadExecutable), 0x4); // XexLoadExecutable 0x8007CF30 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XexLoadImage), 0x4); // XexLoadImage 0x8007CF10 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XexGetModuleSection), 0x4); // XexGetModuleSection 0x8007C958 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XexPcToFileHeader), 0x4); // XexPcToFileHeader 0x8007ACA8 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(ExCreateThread), 0x4); // ExCreateThread 0x80065F40  | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(ObCreateSymbolicLink), 0x4); // ObCreateSymbolicLink 0x8008A5F0 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(RtlInitAnsiString), 0x4); // RtlInitAnsiString 0x80085860 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(ExSetXConfigSetting), 0x4); // ExSetXConfigSetting 0x80065688 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(ExGetXConfigSetting), 0x4); // ExGetXConfigSetting 0x80065700 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(MmGetPhysicalAddress), 0x4); // MmGetPhysicalAddress 0x8007F798 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(VdDisplayFatalError), 0x27C); // VdDisplayFatalError 0x800BD398 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptRandom), 0x4); // XeCryptRandom 0x80061440 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptHmacShaInit), 0x4); // XeCryptHmacShaInit 0x801144B0 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptHmacShaUpdate), 0x4); // XeCryptHmacShaUpdate 0x80114600 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptHmacShaFinal), 0x4); // XeCryptHmacShaFinal 0x80114608 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptDes3Ecb), 0x4); // XeCryptDes3Ecb 0x80112598 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptDes3Key), 0x4); // XeCryptDes3Key 0x80112950 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptAesEcb), 0x4); // XeCryptAesEcb 0x8010F640 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptAesCbc), 0x4); // XeCryptAesCbc 0x8010F660 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptAesKey), 0x4); // XeCryptAesKey 0x8010F630 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptHmacSha), 0x4); // XeCryptHmacSha 0x80114658 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptRotSumSha), 0x4); // XeCryptRotSumSha 0x80114930 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptMd5), 0x4); // XeCryptMd5 0x80113F48 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptSha), 0x4); // XeCryptSha 0x801143E8 | devkit ->
-	GetIntegrityManager()->Add(static_cast<PVOID>(XeCryptRc4), 0x4); // XeCryptRc4 0x80114750 | devkit ->
+void Security::SetupIntegrity() {
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XexLoadImageFromMemory), 0x16C); // XexLoadImageFromMemory 0x8007CFA8 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(HalReturnToFirmware), 0x94); // HalReturnToFirmware 0x800682A0 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(RtlImageXexHeaderField), 0x4); // RtlImageXexHeaderField 0x80088C90 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(KeGetCurrentProcessType), 0x4); // KeGetCurrentProcessType 0x80071A68 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XexUnloadImage), 0x4); // XexUnloadImage 0x8007C838 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XexLoadExecutable), 0x4); // XexLoadExecutable 0x8007CF30 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XexLoadImage), 0x4); // XexLoadImage 0x8007CF10 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XexGetModuleSection), 0x4); // XexGetModuleSection 0x8007C958 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XexPcToFileHeader), 0x4); // XexPcToFileHeader 0x8007ACA8 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(ExCreateThread), 0x4); // ExCreateThread 0x80065F40  | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(ObCreateSymbolicLink), 0x4); // ObCreateSymbolicLink 0x8008A5F0 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(RtlInitAnsiString), 0x4); // RtlInitAnsiString 0x80085860 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(ExSetXConfigSetting), 0x4); // ExSetXConfigSetting 0x80065688 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(ExGetXConfigSetting), 0x4); // ExGetXConfigSetting 0x80065700 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(MmGetPhysicalAddress), 0x4); // MmGetPhysicalAddress 0x8007F798 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(VdDisplayFatalError), 0x27C); // VdDisplayFatalError 0x800BD398 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptRandom), 0x4); // XeCryptRandom 0x80061440 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptHmacShaInit), 0x4); // XeCryptHmacShaInit 0x801144B0 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptHmacShaUpdate), 0x4); // XeCryptHmacShaUpdate 0x80114600 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptHmacShaFinal), 0x4); // XeCryptHmacShaFinal 0x80114608 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptDes3Ecb), 0x4); // XeCryptDes3Ecb 0x80112598 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptDes3Key), 0x4); // XeCryptDes3Key 0x80112950 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptAesEcb), 0x4); // XeCryptAesEcb 0x8010F640 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptAesCbc), 0x4); // XeCryptAesCbc 0x8010F660 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptAesKey), 0x4); // XeCryptAesKey 0x8010F630 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptHmacSha), 0x4); // XeCryptHmacSha 0x80114658 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptRotSumSha), 0x4); // XeCryptRotSumSha 0x80114930 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptMd5), 0x4); // XeCryptMd5 0x80113F48 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptSha), 0x4); // XeCryptSha 0x801143E8 | devkit ->
+	GetIntegrityManager()->Add(reinterpret_cast<void*>(XeCryptRc4), 0x4); // XeCryptRc4 0x80114750 | devkit ->
 
 	GetIntegrityManager()->Add(ProtectMyMemorySpace, 0x4);
 	GetIntegrityManager()->Add(IntegrityThread, 0x1F0);

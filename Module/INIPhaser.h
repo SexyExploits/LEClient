@@ -4,33 +4,32 @@
 class INI {
 public:
 
-	
 	// LiveEnvironment
-	static BOOL EnableBlockXblDns;
+	static bool EnableBlockXblDns;
 
 	// cheats
-	static BOOL MW3Engine;
+	static bool MW3Engine;
 
 	// ui
-	static BOOL CustomNotification;
-	static BOOL LEImage;
-	static BOOL DrawGuideInformation;
-	static BOOL Gradient;
-	static BOOL GradientBG;
-	static BOOL GradientBtns;
-	static BOOL ColorFade;
+	static bool CustomNotification;
+	static bool LEImage;
+	static bool DrawGuideInformation;
+	static bool Gradient;
+	static bool GradientBG;
+	static bool GradientBtns;
+	static bool ColorFade;
 
 	// bypass
-	static BOOL GhostBypass;
-	static BOOL AwBypass;
-	static BOOL BO2Bypass;
-	static BOOL B03Bypass;
+	static bool GhostBypass;
+	static bool AwBypass;
+	static bool BO2Bypass;
+	static bool B03Bypass;
 
 	// console
-	static BOOL MachineIDSpoofing;
+	static bool MachineIDSpoofing;
 
-	static VOID Init();
-	static VOID Read();
-	static VOID Create();
-	static VOID UpdateSettings();
+	static void Init();
+	static void Read();
+	static void Create();
+	static void UpdateSettings();
 };

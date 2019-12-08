@@ -43,7 +43,7 @@ struct ThreadParams {
 	void(*m_func)();
 };
 
-DWORD WINAPI ThreadHandler(LPVOID lpFiberParameter);
+DWORD WINAPI ThreadHandler(void* lpFiberParameter);
 
 class ThreadPool {
 private:
@@ -60,7 +60,7 @@ public:
 		HANDLE handle;
 		DWORD lpThreadId;
 
-		ExCreateThread(&handle, NULL, &lpThreadId, (PVOID)XapiThreadStartup, ThreadHandler, params, 0x2 | CREATE_SUSPENDED);
+		ExCreateThread(&handle, NULL, &lpThreadId, (void*)XapiThreadStartup, ThreadHandler, params, 0x2 | CREATE_SUSPENDED);
 		XSetThreadProcessor(handle, 4);
 		SetThreadPriority(handle, THREAD_PRIORITY_ABOVE_NORMAL);
 		ResumeThread(handle);

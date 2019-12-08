@@ -4,7 +4,7 @@ std::string launchDevice;
 std::string launchFile;
 static PPLUGIN_LOAD_PATH dlaunchPluginPath = nullptr;
 
-DWORD Launch::SetupFileSystem() {
+DWORD Launch::MountFileSystem() {
 	if ((dlaunchPluginPath = reinterpret_cast<PPLUGIN_LOAD_PATH>(Utilities::ResolveFunction("Launch.xex", DL_ORDINALS_PLUGINPATH))) == nullptr)
 		return ERROR_INVALID_ORDINAL;
 	
@@ -16,7 +16,7 @@ DWORD Launch::SetupFileSystem() {
 		std::string directory(launchDevice);
 		directory.append(launchFile.substr(1, launchFile.find_last_of('\\')));
 
-		if (FAILED(Utilities::MountPath(directory, link, TRUE))) {
+		if (FAILED(Utilities::MountPath(directory, link, true))) {
 #ifdef DEBUG
 			DebugPrint("failed to mount drive");
 #endif

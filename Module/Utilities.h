@@ -1,52 +1,53 @@
 #include "stdafx.h"
 #pragma once
 
-#define DebugPrint(x, ...) { printf("[LiveEmulation %s:%d] %s -> "  x  "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); }
-typedef BOOL(*DLAUNCHSETOPTVALBYNAME)(PCHAR optName, PDWORD val);
+#ifdef DEBUG
+#define DebugPrint(x, ...) DbgPrint("[LE \"%s\":%d] %s -> " x "\n", __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__);
+#else
+#define DebugPrint(...)
+#endif
 
 class Utilities {
 public:
 	static string GetModuleNameFromAddress(DWORD dwAddress);
-	static DWORD Resolve(HMODULE Module, INT ordinal);
+	static DWORD Resolve(HMODULE Module, int ordinal);
 
 #ifdef DEBUG
-	static VOID LOG(CONST PCHAR strFormat, ...);
+	static void LOG(const CHAR* strFormat, ...);
 #endif
-	static BOOL GetSectionInfo(PDWORD pdwAddress, PDWORD pdwLength, CONST PCHAR pchSectionName);
+	static bool GetSectionInfo(DWORD* pdwAddress, DWORD* pdwLength, const char* pchSectionName);
 
-	static VOID Reverse(PBYTE pbData, DWORD cbData);
-	static VOID FreezeXbox();
-	static VOID SendToDash(PWCHAR Text, ...);
-	static VOID StartThread(LPTHREAD_START_ROUTINE lpStartAddress);
-	static VOID XNotifyUI(PWCHAR Text);
-	static VOID XNotifyUI(PCHAR Text, ...);
-	static VOID PatchInJump(PDWORD Address, DWORD Destination, BOOL Linked);
-	static VOID SetSignInStrings();
-	static VOID ApplyPatchData(PVOID buffer);
+	static void Reverse(BYTE* pbData, DWORD cbData);
+	static void FreezeXbox();
+	static void SendToDash(PWCHAR Text, ...);
+	static void StartThread(LPTHREAD_START_ROUTINE lpStartAddress);
+	static void XNotifyUI(PWCHAR Text);
+	static void XNotifyUI(CHAR* Text, ...);
+	static void PatchInJump(DWORD* Address, DWORD Destination, bool Linked);
+	static void SetSignInStrings();
+	static void ApplyPatchData(void* buffer);
+	static void HookFunctionStart(DWORD* Address, DWORD* SaveStub, DWORD Destination);
+	static void SetLiveBlock(bool enabled);
 
-	static DWORD HookFunctionStub(PCHAR ModuleName, DWORD Ordinal, PVOID Destination);
-	static DWORD HookFunctionStub(DWORD _Address, PVOID Function);
-	static DWORD GetFunctionSize(PDWORD pdwAddress);
+	static bool CompareData(BYTE* target1, BYTE* target2);
+	static bool IsNumberBetween(INT Max, INT Min, INT Num);
+	static bool IsBufferEmpty(CHAR* Buffer);
+	static bool IsBufferEmpty(BYTE* Buffer);
+	static bool CReadFile(const char* FilePath, BYTE* pBuffer, DWORD dwSize);
+	static bool CWriteFile(const char* FilePath, const void* pData, DWORD dwSize);
+	static bool FileExists(LPCSTR FileName);
 
-	static BOOL CompareData(PBYTE target1, PBYTE target2);
-	static BOOL IsNumberBetween(INT Max, INT Min, INT Num);
-	static BOOL IsBufferEmpty(PCHAR Buffer);
-	static BOOL IsBufferEmpty(PBYTE Buffer);
-	static BOOL CReadFile(CONST PCHAR FileName, PBYTE* pBuffer, PDWORD pdwLength);
-	static BOOL CWriteFile(CONST PCHAR FilePath, CONST PVOID Data, DWORD Size);
-	static BOOL FileExists(LPCSTR FileName);
+	static DWORD GetFunctionSize(DWORD* Function);
 	static DWORD SetupResources();
-	static VOID HookFunctionStart(PDWORD Address, PDWORD SaveStub, DWORD Destination);
-
-	static HRESULT MountPath(std::string &device, std::string &link, BOOL System);
-	static DWORD SetLiveBlock(BOOL enabled);
-	static DWORD PatchModuleImport(PCHAR Module, PCHAR ImportedModuleName, DWORD Ordinal, DWORD PatchAddress);
-	static DWORD PatchModuleImport(PLDR_DATA_TABLE_ENTRY Module, PCHAR ImportedModuleName, DWORD Ordinal, DWORD PatchAddress);
-
-	static INT RandomInRange(INT Min, INT Max);
-	static PBYTE GetHVCpukey();
-	static PBYTE GetFuseCpukey();
+	static DWORD MountPath(std::string &device, std::string &link, bool System);
+	static DWORD PatchModuleImport(CHAR* Module, CHAR* ImportedModuleName, DWORD Ordinal, DWORD PatchAddress);
+	static DWORD PatchModuleImport(PLDR_DATA_TABLE_ENTRY Module, CHAR* ImportedModuleName, DWORD Ordinal, DWORD PatchAddress);
+	static DWORD HookFunctionStub(CHAR* ModuleName, DWORD Ordinal, void* Destination);
+	static DWORD HookFunctionStub(DWORD _Address, void* Function);
+	static int RandomInRange(int Min, int Max);
+	static BYTE* GetHVCpukey();
+	static BYTE* GetFuseCpukey();
 	static FARPROC SecureResolveFunction(DWORD dwOrdinal);
-	static FARPROC ResolveFunction(HMODULE mHandle, DWORD Ordinal);
-	static FARPROC ResolveFunction(PCHAR ModuleName, DWORD Ordinal);
+	static FARPROC ResolveFunction(HMODULE hHandle, DWORD Ordinal);
+	static FARPROC ResolveFunction(CHAR* ModuleName, DWORD Ordinal);
 };

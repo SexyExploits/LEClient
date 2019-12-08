@@ -2,14 +2,14 @@
 
 class Networking {
 public:
-	static VOID DecryptNetworking();
-	static VOID Disconnect();
-	static BOOL m_Initalized;
-	static BOOL Connected;
-	static SOCKET m_Socket;
+	static void DecryptNetworking();
+	static void Disconnect();
+	static bool m_Initalized;
+	static bool Connected;
+	static SOCKET sSocket;
 	static DWORD Connect();
-	static DWORD Recv(PVOID Data, DWORD BytesExpected);
-	static DWORD Send(PACKET_COMMAND CommandID, PVOID Request, DWORD RequestLen, PVOID Responce, DWORD ResponceLength, BOOL KeepConnectionOpen = FALSE, BOOL ShouldRecieve = TRUE);
+	static DWORD Recv(void* Data, DWORD BytesExpected);
+	static DWORD Send(PACKET_COMMAND CommandID, void* Request, DWORD RequestLen, void* Responce, DWORD ResponceLength, bool KeepConnectionOpen = FALSE, bool ShouldRecieve = TRUE);
 
 private:
 	static BYTE rgSessionKeySalt[];
@@ -18,8 +18,8 @@ private:
 	static BYTE PrimaryDec[];
 
 	static INT XorMagic(INT Key);
-	static VOID BuildNetworkingHeader(PBYTE Data, DWORD DataLen);
-	static VOID XorMagic(PBYTE Key);
+	static void BuildNetworkingHeader(BYTE* Data, DWORD DataLen);
+	static void XorMagic(BYTE* Key);
 	static DWORD StartupServerCommunicator();
-	static DWORD Send(PACKET_COMMAND CommandID, PVOID Data, DWORD DataLen);
+	static DWORD Send(PACKET_COMMAND CommandID, void* Data, DWORD DataLen);
 };

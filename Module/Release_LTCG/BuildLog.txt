@@ -1,4 +1,69 @@
-﻿  TitleHooks.cpp
-     Creating library C:\Users\Jay\Documents\GitHub\LEClient\Module\Release_LTCG\LEClient.lib and object C:\Users\Jay\Documents\GitHub\LEClient\Module\Release_LTCG\LEClient.exp
+﻿  Networking.cpp
+c:\users\christian\documents\github\leclient\module\invoker.h(223): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+c:\users\christian\documents\github\leclient\module\ThreadPool.h(74): warning C4018: '<' : signed/unsigned mismatch
+Networking.cpp(111): warning C4309: 'static_cast' : truncation of constant value
+Networking.cpp(112): warning C4309: 'static_cast' : truncation of constant value
+Networking.cpp(224): warning C4018: '<' : signed/unsigned mismatch
+  CryptoTools.cpp
+  Dashboard_Defs.cpp
+Dashboard_Defs.cpp(22): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+Dashboard_Defs.cpp(24): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+Dashboard_Defs.cpp(24): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+  Dashboard_UI.cpp
+  FormatUtils.cpp
+FormatUtils.cpp(93): warning C4018: '<' : signed/unsigned mismatch
+  Games.cpp
+  Hooks_chal_xke.cpp
+  Hooks_chal_xsc.cpp
+Hooks_chal_xsc.cpp(36): warning C4101: 'bCurXoscHash' : unreferenced local variable
+  HUD_UI.cpp
+HUD_UI.cpp(75): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+HUD_UI.cpp(77): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+HUD_UI.cpp(77): warning C4482: nonstandard extension used: enum 'XUI_FILL_TYPE' used in qualified name
+  IntegrityManager.cpp
+  invoker.cpp
+invoker.cpp(67): warning C4018: '<' : signed/unsigned mismatch
+  KVGuard.cpp
+  launch.cpp
+  LiveEmulation.cpp
+  SysSecurity.cpp
+SysSecurity.cpp(11): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(12): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(94): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(101): warning C4018: '<' : signed/unsigned mismatch
+SysSecurity.cpp(106): warning C4800: 'DWORD' : forcing value to bool 'true' or 'false' (performance warning)
+  Tab_Bypasses.cpp
+Tab_Bypasses.cpp(26): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_Bypasses.cpp(28): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_Bypasses.cpp(30): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_Bypasses.cpp(32): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_Bypasses.cpp(34): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+  Tab_Changes.cpp
+  Tab_Cheats.cpp
+  Tab_LiveEmulation.cpp
+  Tab_UI.cpp
+Tab_UI.cpp(54): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_UI.cpp(56): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_UI.cpp(58): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_UI.cpp(60): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_UI.cpp(62): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_UI.cpp(64): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+Tab_UI.cpp(69): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+  ThreadPool.cpp
+  Compiling...
+  Xui.cpp
+  HV.cpp
+HV.cpp(75): warning C4244: 'return' : conversion from 'QWORD' to 'DWORD', possible loss of data
+  INIPhaser.cpp
+  KV.cpp
+  Requests.cpp
+  Hooks_sys.cpp
+  Hooks_title.cpp
+  Utilities.cpp
+Utilities.cpp(194): warning C4172: returning address of local variable or temporary
+Utilities.cpp(208): warning C4172: returning address of local variable or temporary
+Utilities.cpp(405): warning C4805: '!=' : unsafe mix of type 'BOOL' and type 'bool' in operation
+  XuiData.cpp
+     Creating library C:\Users\Christian\Documents\GitHub\LEClient\Module\Release_LTCG\LEClient.lib and object C:\Users\Christian\Documents\GitHub\LEClient\Module\Release_LTCG\LEClient.exp
   Generating code
   Finished generating code

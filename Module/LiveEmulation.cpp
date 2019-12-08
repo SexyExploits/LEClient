@@ -1,80 +1,66 @@
 #include "stdafx.h"
 
-HANDLE LE::LEhandle = nullptr;
-HANDLE LE::Xamhandle = nullptr;
-HANDLE LE::Kernelhandle = nullptr;
-AUTH_STATUS LE::Auth_status = NOT_REGISTERED;
-DWORD LE::MyModulehandleSize = NULL;
+HANDLE LE::hLE = nullptr;
+HANDLE LE::hXam = nullptr;
+HANDLE LE::hKernel = nullptr;
+AUTH_STATUS LE::s_Auth_status = NOT_REGISTERED;
+DWORD LE::dwMyModuleSize = NULL;
 
-VOID LE::Init_thread() {
+void LE::Init_thread() {
 	while (Native::Xam::XamGetCurrentTitleId() != Games::DASHBOARD)
 		Native::Xam::Sleep(100);
 }
 
 DWORD LE::Init() {
-	if (FAILED(Launch::SetupFileSystem())) {
-#ifdef DEBUG
-		DebugPrint("[LiveEmulation] Failed SetupFileSystem!");
-#endif
+	if (FAILED(HV::SetupHvExpansion())) {
+		DebugPrint("[LiveEmulation] Failed to setup hvexpansion!");
+		return E_FAIL;
+	}
+
+	if (FAILED(Launch::MountFileSystem())) {
+		DebugPrint("[LiveEmulation] Failed MountFileSystem!");
 		return E_FAIL;
 	}
 
 	if (FAILED(Utilities::SetupResources())) {
-#ifdef DEBUG
 		DebugPrint("[LiveEmulation] failed to setup resources!");
-#endif
-		return E_FAIL;
-	}
-	
-	if (FAILED(HV::SetupHvExpansion())) {
-#ifdef DEBUG
-		DebugPrint("[LiveEmulation] Failed to setup hvexpansion!");
-#endif
 		return E_FAIL;
 	}
 
 	if (FAILED(KV::SetupKeyvault())) {
-#ifdef DEBUG
 		DebugPrint("[LiveEmulation] Failed to setup setkeyvault!");
-#endif
 		return E_FAIL;
 	}
 
-	INI::Init();
-
 	Requests::Setup();
-
-	if (FAILED(Hooks::SetupSysHooks())) {
-#ifdef DEBUG
+	if (FAILED(SysHooks::SetupSysHooks())) {
 		DebugPrint("[LiveEmulation] Failed to setup syshooks!");
-#endif
 		return E_FAIL;
 	}
 	Utilities::StartThread(reinterpret_cast<LPTHREAD_START_ROUTINE>(Init_thread));
 	return ERROR_SUCCESS;
 }
 
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
+bool APIENTRY DllMain(HANDLE hModule, DWORD dwReason, void* lpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
-		LE::LEhandle = hModule;
-		LE::Xamhandle = GetModuleHandle(MODULE_XAM);
-		LE::Kernelhandle = GetModuleHandle(MODULE_KERNEL);
+		LE::hLE = hModule;
+		LE::hXam = GetModuleHandle(MODULE_XAM);
+		LE::hKernel = GetModuleHandle(MODULE_KERNEL);
 
-		if (LE::Xamhandle == nullptr || LE::Kernelhandle == nullptr)
-			return FALSE;
+		if (LE::hXam == nullptr || LE::hKernel == nullptr)
+			return false;
 
-		KV::IsDevkit = *reinterpret_cast<PDWORD>(0x8E038610) & 0x8000 ? FALSE : TRUE;
-		Utilities::SetLiveBlock(TRUE);
-		Invoker::RegisterPreAuthNatives();
-		Invoker::RegisterPostCryptoNatives();
-		//Security::ProtectMyMemorySpace();
-		if (XamLoaderGetDvdTrayState() == DVD_TRAY_STATE_CLOSED || XamLoaderGetDvdTrayState() == DVD_TRAY_STATE_EMPTY) {
-			if (FAILED(LE::Init())) 
+		if (XamLoaderGetDvdTrayState() != DVD_TRAY_STATE_OPEN) {
+			KV::bIsDevkit = *reinterpret_cast<DWORD*>(0x8E038610) & 0x8000 ? false : true;
+			Utilities::SetLiveBlock(true);
+			Invoker::RegisterPreAuthNatives();
+			Invoker::RegisterPostCryptoNatives();
+			//Security::ProtectMyMemorySpace();
+			if (FAILED(LE::Init()))
 				HalReturnToFirmware(HalResetSMCRoutine);
-			
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 #pragma code_seg(push, r1, ".ptext")
@@ -220,10 +206,10 @@ inline DWORD DllMainKeyScrambler(DWORD Seed, DWORD WhiteningKey1, DWORD Whitenin
 }
 
 inline DWORD EndianSwap(DWORD Block) {
-   return (Block >> 24) | ((Block << 8) & 0x00FF0000) | ((Block >> 8) & 0x0000FF00) | (Block << 24);
+	return (Block >> 24) | ((Block << 8) & 0x00FF0000) | ((Block >> 8) & 0x0000FF00) | (Block << 24);
 }
 
-BYTE XeProtectPayload[0x20] = {
+BYTE bXeProtectPayload[0x20] = {
 		0xAA, 0xBB, 0xCC, 0xDD, // SectionStart
 		0xAA, 0xAA, 0xAA, 0xAA, // SectionEnd
 		0xAA, 0xAA, 0xAA, 0xAA, // SkipStartGprl
@@ -234,18 +220,18 @@ BYTE XeProtectPayload[0x20] = {
 		0xAA, 0xAA, 0xAA, 0x09 // MasterKey2
 };
 
-EXTERN_C BOOL WINAPI _CRT_INIT(HANDLE hModule, DWORD dwReason, LPVOID lpReserved);
-__declspec(noinline) BOOL APIENTRY DllMainSecure(HANDLE hModule, DWORD dwReason, LPVOID lpReserved) {
+EXTERN_C bool WINAPI _CRT_INIT(HANDLE hModule, DWORD dwReason, void* lpReserved);
+__declspec(noinline) bool APIENTRY DllMainSecure(HANDLE hModule, DWORD dwReason, void* lpReserved) {
 	if (dwReason == DLL_PROCESS_ATTACH) {
-	#ifdef USE_SECURITY
-		auto SectionStart = *reinterpret_cast<PDWORD>(XeProtectPayload);
-		auto SectionEnd = *reinterpret_cast<PDWORD>(XeProtectPayload + 0x4);
-		auto SkipStartGprl = *reinterpret_cast<PDWORD>(XeProtectPayload + 0x8);
-		auto SkipEndGprl = *reinterpret_cast<PDWORD>(XeProtectPayload + 0xC);
-		auto SkipStartImports = *reinterpret_cast<PDWORD>(XeProtectPayload + 0x10);
-		auto SkipEndImports = *reinterpret_cast<PDWORD>(XeProtectPayload + 0x14);
-		auto SeedOut = *reinterpret_cast<PDWORD>(XeProtectPayload + 0x18);
-		auto Seed2 = *reinterpret_cast<PDWORD>(XeProtectPayload + 0x1C);
+#ifdef USE_SECURITY
+		auto SectionStart = *reinterpret_cast<DWORD*>(bXeProtectPayload);
+		auto SectionEnd = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0x4);
+		auto SkipStartGprl = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0x8);
+		auto SkipEndGprl = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0xC);
+		auto SkipStartImports = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0x10);
+		auto SkipEndImports = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0x14);
+		auto SeedOut = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0x18);
+		auto Seed2 = *reinterpret_cast<DWORD*>(bXeProtectPayload + 0x1C);
 
 		SeedOut = DllMainKeyScrambler(SeedOut, Seed2, 0x40381A71, 0xD4C925F3, 0xC415CF6B, 0x7153F444, 0x20);
 
@@ -254,21 +240,21 @@ __declspec(noinline) BOOL APIENTRY DllMainSecure(HANDLE hModule, DWORD dwReason,
 				continue;
 			}
 
-			for (auto x = 0; x < sizeof(XeProtectPayload); x++)
-				*reinterpret_cast<PDWORD>(DataChunk) ^= static_cast<DWORD>(XeProtectPayload[x]);
+			for (auto x = 0; x < sizeof(bXeProtectPayload); x++)
+				*reinterpret_cast<DWORD*>(DataChunk) ^= reinterpret_cast<DWORD>(bXeProtectPayload[x]);
 
-			*reinterpret_cast<PDWORD>(DataChunk) ^= SeedAutism(0x4F0BB000);
-			*reinterpret_cast<PDWORD>(DataChunk) ^= 0x5050;
-			*reinterpret_cast<PDWORD>(DataChunk) ^= 0xAF063BED;
-			*reinterpret_cast<PDWORD>(DataChunk) ^= SeedOut;
-			*reinterpret_cast<PDWORD>(DataChunk) = EndianSwap(*reinterpret_cast<PDWORD>(DataChunk));
+			*reinterpret_cast<DWORD*>(DataChunk) ^= SeedAutism(0x4F0BB000);
+			*reinterpret_cast<DWORD*>(DataChunk) ^= 0x5050;
+			*reinterpret_cast<DWORD*>(DataChunk) ^= 0xAF063BED;
+			*reinterpret_cast<DWORD*>(DataChunk) ^= SeedOut;
+			*reinterpret_cast<DWORD*>(DataChunk) = EndianSwap(*reinterpret_cast<DWORD*>(DataChunk));
 		}
 #endif   
 		if (!_CRT_INIT(hModule, dwReason, lpReserved))
-			return FALSE;
+			return false;
 
 		return DllMain(hModule, dwReason, lpReserved);
 	}
-	return TRUE;
+	return true;
 }
 #pragma code_seg(pop, r1)

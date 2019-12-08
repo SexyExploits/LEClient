@@ -126,13 +126,13 @@ private:
 class LE {
 public:
 
-	static HANDLE LEhandle;
-	static HANDLE Xamhandle;
-	static HANDLE Kernelhandle;
+	static HANDLE hLE;
+	static HANDLE hXam;
+	static HANDLE hKernel;
 
-	static AUTH_STATUS Auth_status;
-	static DWORD MyModulehandleSize;
+	static AUTH_STATUS s_Auth_status;
+	static DWORD dwMyModuleSize;
 
-	static VOID STDAPICALLTYPE Init_thread();
+	static void Init_thread();
 	static DWORD Init();
 };

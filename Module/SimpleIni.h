@@ -699,7 +699,7 @@ public:
 	@return a_nDefault      Key was not found in the section
 	@return other           Value of the key
 	*/
-	bool GetBoolValue(
+	bool GetboolValue(
 		const SI_CHAR * a_pSection,
 		const SI_CHAR * a_pKey,
 		bool            a_bDefault = false,
@@ -817,8 +817,8 @@ public:
 	@param a_bForceReplace  Should all existing values in a multi-key INI
 	file be replaced with this entry. This option has
 	no effect if not using multi-key files. The
-	difference between Delete/SetBoolValue and
-	SetBoolValue with a_bForceReplace = true, is that
+	difference between Delete/SetboolValue and
+	SetboolValue with a_bForceReplace = true, is that
 	the load order and comment will be preserved this
 	way.
 
@@ -826,7 +826,7 @@ public:
 	@return SI_UPDATED  Value was updated
 	@return SI_INSERTED Value was inserted
 	*/
-	SI_Error SetBoolValue(
+	SI_Error SetboolValue(
 		const SI_CHAR * a_pSection,
 		const SI_CHAR * a_pKey,
 		bool            a_bValue,
@@ -1712,7 +1712,7 @@ CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::AddEntry(
 		if (a_pComment) {
 			oKey.pComment = a_pComment;
 		}
-		typename TKeyVal::value_type oEntry(oKey, static_cast<const SI_CHAR *>(NULL));
+		typename TKeyVal::value_type oEntry(oKey, reinterpret_cast<const SI_CHAR *>(NULL));
 		iKey = keyval.insert(oEntry);
 		bInserted = true;
 	}
@@ -1892,7 +1892,7 @@ CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::SetDoubleValue(
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
 bool
-CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::GetBoolValue(
+CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::GetboolValue(
 	const SI_CHAR * a_pSection,
 	const SI_CHAR * a_pKey,
 	bool            a_bDefault,
@@ -1927,7 +1927,7 @@ CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::GetBoolValue(
 
 template<class SI_CHAR, class SI_STRLESS, class SI_CONVERTER>
 SI_Error
-CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::SetBoolValue(
+CSimpleIniTempl<SI_CHAR, SI_STRLESS, SI_CONVERTER>::SetboolValue(
 	const SI_CHAR * a_pSection,
 	const SI_CHAR * a_pKey,
 	bool            a_bValue,
